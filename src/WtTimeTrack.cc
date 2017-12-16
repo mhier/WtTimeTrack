@@ -20,6 +20,7 @@
 #include "WtTimeTrack.h"
 #include "PlannerCalendar.h"
 #include "AbsenceList.h"
+#include "DebitTimeList.h"
 
 WtTimeTrack::WtTimeTrack() {
     session_.login().changed().connect(this, &WtTimeTrack::onAuthEvent);
@@ -134,8 +135,7 @@ void WtTimeTrack::debitTimeView() {
 
     Wt::Dbo::Transaction transaction(session_.session_);
     contentStack_->clear();
-    std::unique_ptr<WText> title(std::make_unique<WText>("debitTimeView"));
-    contentStack_->addWidget(std::move(title));
+    contentStack_->addWidget(std::make_unique<DebitTimeList>(session_));
     transaction.commit();
 
 }
