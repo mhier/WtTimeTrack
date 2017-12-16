@@ -59,7 +59,7 @@ void DebitTimeList::update() {
       }
       table->elementAt(row, 9)->addWidget(std::make_unique<WText>(formatNumber(sum)));
 
-      for(int i=0; i<4; ++i) {
+      for(int i=0; i<10; ++i) {
         table->elementAt(row,i)->clicked().connect(this, [=] {
           debitTimeDialog_ = std::make_unique<DebitTimeDialog>(this, session_, debitTime);
           debitTimeDialog_->show();
