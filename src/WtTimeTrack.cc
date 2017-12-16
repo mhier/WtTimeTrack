@@ -71,7 +71,7 @@ void WtTimeTrack::handleInternalPath(const std::string &internalPath) {
         debitTimeView();
       }
       else {
-        WApplication::instance()->setInternalPath("/month",  true);
+        WApplication::instance()->setInternalPath("/clock",  true);
       }
     }
     else {
