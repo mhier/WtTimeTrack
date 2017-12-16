@@ -15,7 +15,7 @@ ADD_CUSTOM_TARGET(link_target ALL
                   COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/Wt/resources ${CMAKE_BINARY_DIR}/resources)
 
 CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/wt_project ${CMAKE_BINARY_DIR}/wt_project COPYONLY)
-CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/zeiterfassung.css ${CMAKE_BINARY_DIR}/zeiterfassung.css COPYONLY)
+CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/WtTimeTrack.css ${CMAKE_BINARY_DIR}/WtTimeTrack.css COPYONLY)
 
 ADD_EXECUTABLE(${WTtest_TARGET} ${WTtest_SOURCE})
 TARGET_LINK_LIBRARIES(${WTtest_TARGET} ${WT_CONNECTOR} wt wtdbo wtdbosqlite3 boost_system boost_signals crypt)

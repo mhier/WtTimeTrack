@@ -17,12 +17,12 @@
 #include <Wt/WCalendar.h>
 #include <Wt/WPushButton.h>
 
-#include "Zeiterfassung.h"
+#include "WtTimeTrack.h"
 #include "PlannerCalendar.h"
 #include "AbsenceList.h"
 
-Zeiterfassung::Zeiterfassung() {
-    session_.login().changed().connect(this, &Zeiterfassung::onAuthEvent);
+WtTimeTrack::WtTimeTrack() {
+    session_.login().changed().connect(this, &WtTimeTrack::onAuthEvent);
 
     auto authModel = std::make_unique<Auth::AuthModel>(Session::auth(), session_.users());
     authModel->addPasswordAuth(&Session::passwordAuth());
@@ -40,12 +40,12 @@ Zeiterfassung::Zeiterfassung() {
     mainStack_ = new WStackedWidget();
     addWidget(std::unique_ptr<WStackedWidget>(mainStack_));
 
-    WApplication::instance()->internalPathChanged().connect(this, &Zeiterfassung::handleInternalPath);
+    WApplication::instance()->internalPathChanged().connect(this, &WtTimeTrack::handleInternalPath);
 
     authWidgetPtr->processEnvironment();
 }
 
-void Zeiterfassung::onAuthEvent() {
+void WtTimeTrack::onAuthEvent() {
     if(session_.login().loggedIn()) {
       createMenu();
       handleInternalPath(WApplication::instance()->internalPath());
@@ -56,7 +56,7 @@ void Zeiterfassung::onAuthEvent() {
     }
 }
 
-void Zeiterfassung::handleInternalPath(const std::string &internalPath) {
+void WtTimeTrack::handleInternalPath(const std::string &internalPath) {
     if(session_.login().loggedIn()) {
       if (internalPath == "/month") {
         monthView();
@@ -79,7 +79,7 @@ void Zeiterfassung::handleInternalPath(const std::string &internalPath) {
     }
 }
 
-void Zeiterfassung::createMenu() {
+void WtTimeTrack::createMenu() {
 
     auto pane = std::make_unique<Wt::WContainerWidget>();
     auto pane_ = pane.get();
@@ -112,7 +112,7 @@ void Zeiterfassung::createMenu() {
 
 }
 
-void Zeiterfassung::monthView() {
+void WtTimeTrack::monthView() {
 
     Wt::Dbo::Transaction transaction(session_.session_);
     contentStack_->clear();
@@ -121,7 +121,7 @@ void Zeiterfassung::monthView() {
 
 }
 
-void Zeiterfassung::absencesView() {
+void WtTimeTrack::absencesView() {
 
     Wt::Dbo::Transaction transaction(session_.session_);
     contentStack_->clear();
@@ -130,7 +130,7 @@ void Zeiterfassung::absencesView() {
 
 }
 
-void Zeiterfassung::debitTimeView() {
+void WtTimeTrack::debitTimeView() {
 
     Wt::Dbo::Transaction transaction(session_.session_);
     contentStack_->clear();
@@ -140,25 +140,25 @@ void Zeiterfassung::debitTimeView() {
 
 }
 
-void Zeiterfassung::clockView() {
+void WtTimeTrack::clockView() {
     Wt::Dbo::Transaction transaction(session_.session_);
 
     contentStack_->clear();
 
     if(session_.user()->currentCreditTime().empty()) {
       auto button = contentStack_->addWidget(std::make_unique<Wt::WPushButton>("Einstempeln"));
-      button->clicked().connect(this, &Zeiterfassung::clockIn);
+      button->clicked().connect(this, &WtTimeTrack::clockIn);
     }
     else {
       auto button = contentStack_->addWidget(std::make_unique<Wt::WPushButton>("Ausstempeln"));
-      button->clicked().connect(this, &Zeiterfassung::clockOut);
+      button->clicked().connect(this, &WtTimeTrack::clockOut);
     }
 
     transaction.commit();
 
 }
 
-void Zeiterfassung::clockIn() {
+void WtTimeTrack::clockIn() {
     Wt::Dbo::Transaction transaction(session_.session_);
     session_.user().modify()->clockIn();
     transaction.commit();
@@ -166,7 +166,7 @@ void Zeiterfassung::clockIn() {
 
 }
 
-void Zeiterfassung::clockOut() {
+void WtTimeTrack::clockOut() {
     Wt::Dbo::Transaction transaction(session_.session_);
     session_.user().modify()->clockOut();
     transaction.commit();

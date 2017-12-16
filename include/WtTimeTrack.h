@@ -22,13 +22,11 @@ namespace Wt {
   class WAnchor;
 }
 
-class HangmanWidget;
-class HighScoresWidget;
 class Session;
 
-class Zeiterfassung : public WContainerWidget {
+class WtTimeTrack : public WContainerWidget {
   public:
-    Zeiterfassung();
+    WtTimeTrack();
 
     void handleInternalPath(const std::string &internalPath);
 

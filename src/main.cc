@@ -7,13 +7,14 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <unistd.h>
+
 #include <Wt/WApplication.h>
 #include <Wt/WServer.h>
 #include <Wt/WBootstrapTheme.h>
 
-#include "Zeiterfassung.h"
+#include "WtTimeTrack.h"
 #include "Session.h"
-       #include <unistd.h>
 
 using namespace Wt;
 
@@ -25,9 +26,9 @@ std::unique_ptr<WApplication> createApplication(const WEnvironment& env) {
     app->root()->addStyleClass("container");
     app->setTheme(std::make_shared<Wt::WBootstrapTheme>());
 
-    app->useStyleSheet("zeiterfassung.css");
+    app->useStyleSheet("WtTimeTrack.css");
 
-    app->root()->addWidget(std::make_unique<Zeiterfassung>());
+    app->root()->addWidget(std::make_unique<WtTimeTrack>());
 
     return app;
 }
