@@ -16,11 +16,8 @@
 #include <Wt/Dbo/WtSqlTraits.h>
 #include <Wt/WComboBox.h>
 
-#include "PlannerCalendar.h"
-#include "CalendarCellDialog.h"
-
 AbsenceDialog::AbsenceDialog(Updateable *owner, Session &session, WDate suggestedStartDate)
-: owner_(owner), Wt::WDialog("Abwesenheit"), session_(session)
+: Wt::WDialog("Abwesenheit"), owner_(owner), session_(session)
 {
     contents()->addStyleClass("form-group");
 

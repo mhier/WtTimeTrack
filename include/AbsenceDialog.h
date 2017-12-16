@@ -18,8 +18,6 @@
 
 using namespace Wt;
 
-class CalendarCellDialog;
-
 class AbsenceDialog : public WDialog {
   public:
     AbsenceDialog(Updateable *owner, Session &session, WDate suggestedStartDate);
