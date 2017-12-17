@@ -81,7 +81,7 @@
 	text-align: left;
         overflow: hidden;
         text-overflow: ellipsis;
-	background-color: #F0F0F0;
+        border: 1px solid #AAAAAA;
 }
 
 .cell-today {
@@ -90,7 +90,7 @@
 	text-align: left;
         overflow: hidden;
         text-overflow: ellipsis;
-	background-color: #FFE0E0;
+        border: 1px solid #FF6666;
 }
 
 .cell span {
