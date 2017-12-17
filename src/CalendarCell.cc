@@ -53,12 +53,13 @@ void CalendarCell::update(const WDate& date) {
     auto credit = user->getCreditForRange(date, date);
     addWidget(std::make_unique<WText>( "Ist: " + secondsToString(credit) ));
 
-    auto debit = user->getDebitForRange(date, date);
-    addWidget(std::make_unique<WText>( "Soll: " + secondsToString(debit) ));
-
     auto absence = user->checkAbsence(date);
     if(absence->reason != Absence::Reason::NotAbsent) {
       addWidget(std::make_unique<WText>( Absence::ReasonToString(absence->reason) ));
+    }
+    else {
+      auto debit = user->getDebitForRange(date, date);
+      addWidget(std::make_unique<WText>( "Soll: " + secondsToString(debit) ));
     }
 
     if(date.dayOfWeek() == 1) {  // Monday: show transfer from last week

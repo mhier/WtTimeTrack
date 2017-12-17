@@ -64,14 +64,25 @@ double User::getDebitTimeForDate(const WDate &date) const {
 }
 
 int User::getCreditForRange(const WDate& from, const WDate& until) const {
-    int credit;
+    int credit = 0;
+
+    // get result for all clocked-out periods
     auto res = creditTimes.session()->query<int>("select SUM( (JULIANDAY(stop) - JULIANDAY(start))*86400. ) from creditTime")
-                    .where("start >= ?").bind(from).where("stop <= ?").bind(until.addDays(1));
-    return res.resultValue();
+                    .where("start >= ?").bind(from).where("stop <= ?").bind(until.addDays(1)).where("hasClockedOut != 0");
+    credit += res.resultValue();
+
+    // add potential non-yet clocked-out period
+    auto res2 = creditTimes.find().where("hasClockedOut == 0");
+    if(!res2.resultList().empty()) {
+      auto start = std::max( res2.resultValue()->start, WDateTime(from, WTime(0,0,0)) );
+      auto stop = std::min( WDateTime::currentDateTime(), WDateTime(until, WTime(23,59,59)) );
+      credit += std::max( start.secsTo(stop), 0 );
+    }
+
+    return credit;
 }
 
-int User::countDebit(const Wt::Dbo::ptr<DebitTime> &debitTime, const WDate &from, const WDate &until) {
-    if(debitTime.get() == nullptr) return 0;
+int User::countDebit(const DebitTime &debitTime, const WDate &from, const WDate &until) {
 
     int nDays = from.daysTo(until)+1;       // if from and until are the same day, we count 1 day...
     int nFullWeeks = nDays / 7;             // C++ truncates towards 0
@@ -82,36 +93,70 @@ int User::countDebit(const Wt::Dbo::ptr<DebitTime> &debitTime, const WDate &from
 
     // count hours for full week
     for(int i=0; i<7; ++i) {
-      debitHours += debitTime->workHoursPerWeekday[i] * nFullWeeks;
+      debitHours += debitTime.workHoursPerWeekday[i] * nFullWeeks;
     }
 
     // count hours for remaining days
     for(int i=iFirstDOW; i<iFirstDOW+nDaysRemainder; ++i) {
-      debitHours += debitTime->workHoursPerWeekday[i%7];
+      debitHours += debitTime.workHoursPerWeekday[i%7];
     }
 
     // return seconds
     return std::round(debitHours*3600.);
 }
 
+std::list<DebitTime> User::getDebitTimesWithAbsences() const {
+
+    // put the debit times into a std::list
+    auto debitCollection = debitTimes.find().orderBy("validFrom").resultList();
+    std::list<DebitTime> debitList;
+    for(auto &debit : debitCollection) debitList.push_back(*debit);
+
+    // iterate through absences in reverse order and insert into debitList
+    auto absenceCollection = absences.find().orderBy("first DESC").resultList();
+    for(auto &absence : absenceCollection) {
+      WDate validUntil = WDate::currentDate().addYears(100);    // 100 years in future: latest debitTime expires
+      for(auto it = debitList.rbegin(); it != debitList.rend(); ++it) {
+        if(it->validFrom > absence->last || validUntil < absence->first) {
+          validUntil = it->validFrom.addDays(-1);
+          continue;
+        }
+        // in general we will effectivly replace the debitTime in the list with 3 consecutive debitTimes:
+        // the first will be identical to the original one, the second will reflect the absence (debit hours
+        // are all 0) and the third will restore the original work hours.
+        DebitTime debit1 = *it;
+        DebitTime debit2;
+        debit2.validFrom = absence->first;
+        it->validFrom = absence->last.addDays(1);
+        auto insertBefore = it.base();
+        insertBefore--;
+        // the first debit time only gets inserted if positive length
+        if(debit1.validFrom < debit2.validFrom) debitList.insert(insertBefore, debit1);
+        // the second one gets always inserted as it represents the absence itself
+        debitList.insert(insertBefore, debit2);
+        // the third gets removed if it no longer has a positive length
+        if(it->validFrom > validUntil) debitList.erase(insertBefore);
+        break;
+      }
+    }
+
+    return debitList;
+}
+
 int User::getDebitForRange(const WDate& from, const WDate& until) const {
-    auto list = debitTimes.find().orderBy("validFrom").resultList();
-    Wt::Dbo::ptr<DebitTime> last{nullptr};
+    auto list = getDebitTimesWithAbsences();
     int result = 0;
-    for(auto debitTime : list) {
-      if(debitTime->validFrom < from || last.get() == nullptr) {
-        last = debitTime;
+    WDate validUntil = WDate::currentDate().addYears(100);    // 100 years in future: latest debitTime expires
+    for(auto it = list.rbegin(); it != list.rend(); ++it) {
+      if(it->validFrom > until) {
+        validUntil = it->validFrom.addDays(-1);
         continue;
       }
-      WDate start = std::max( last->validFrom, from );
-      WDate stop = std::min( debitTime->validFrom.addDays(-1), until );
-      result += countDebit(last, start, stop);
-      last = debitTime;
-      if(debitTime->validFrom > until) break;
-    }
-    if(last.get() != nullptr && last->validFrom <= until) {
-      WDate start = std::max( last->validFrom, from );
-      result += countDebit(last, start, until);
+      WDate start = std::max( it->validFrom, from );
+      WDate stop = std::min( validUntil, until );
+      result += countDebit(*it, start, stop);
+      if(it->validFrom < from) break;
+      validUntil = it->validFrom.addDays(-1);
     }
     return result;
 }

@@ -30,7 +30,7 @@ class DebitTime {
 
     WDate validFrom;
 
-    std::array<double, 7> workHoursPerWeekday;
+    std::array<double, 7> workHoursPerWeekday{0,0,0,0,0,0,0};
 
     template<class Action>
     void persist ( Action& a ) {

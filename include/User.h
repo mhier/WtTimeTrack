@@ -16,6 +16,7 @@
 #include <Wt/Auth/Dbo/AuthInfo.h>
 
 #include <string>
+#include <list>
 
 #include "CreditTime.h"
 #include "DebitTime.h"
@@ -52,6 +53,9 @@ class User {
     dbo::collection< dbo::ptr<DebitTime> > debitTimes;
     double getDebitTimeForDate(const WDate &date) const;
 
+    // obtain a list of DebitTimes taking into account the Absences. Result is ordered by "validFrom"
+    std::list<DebitTime> getDebitTimesWithAbsences() const;
+
     // credit time in seconds for a given range
     int getCreditForRange(const WDate& from, const WDate& until) const;
     // debit time in seconds for a given range
@@ -82,8 +86,8 @@ class User {
   private:
 
     // count debit time in seconds in the given range assuming the given debitTime for each week day.
-    // DebitTime::validFrom is ignored in this function!
-    static int countDebit(const Wt::Dbo::ptr<DebitTime> &debitTime, const WDate &from, const WDate &until);
+    // DebitTime::validFrom is ignored in this function as well as absences!
+    static int countDebit(const DebitTime &debitTime, const WDate &from, const WDate &until);
 };
 
 DBO_EXTERN_TEMPLATES ( User );
