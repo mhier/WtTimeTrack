@@ -31,7 +31,7 @@ class DebitTimeList : public WContainerWidget, public Updateable {
 
     static const std::array<std::string, 7> dayOfWeekNames;
 
-    std::string formatNumber(double hours) const;
+    static std::string formatNumber(double hours);
 
   private:
     Session &session_;

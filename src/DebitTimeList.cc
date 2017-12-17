@@ -81,7 +81,7 @@ void DebitTimeList::update() {
 
 }
 
-std::string DebitTimeList::formatNumber(double hours) const {
+std::string DebitTimeList::formatNumber(double hours) {
     std::ostringstream oss;
     oss << std::setprecision(2) << std::noshowpoint << hours;
     return oss.str();

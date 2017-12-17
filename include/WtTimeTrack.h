@@ -7,8 +7,8 @@
  * See the LICENSE file for terms of use.
  */
 
-#ifndef HANGMANGAME_H_
-#define HANGMANGAME_H_
+#ifndef WT_TIME_TRACK_H_
+#define WT_TIME_TRACK_H_
 
 #include <Wt/WContainerWidget.h>
 #include <Wt/WMenu.h>
@@ -47,4 +47,4 @@ class WtTimeTrack : public WContainerWidget {
     void clockOut();
 };
 
-#endif //HANGMANGAME_H_
+#endif //WT_TIME_TRACK_H_
