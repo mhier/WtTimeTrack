@@ -17,13 +17,13 @@
 #include <string>
 #include <cmath>
 
+#include "utils.h"
+
 CalendarCell::CalendarCell(Session &session)
   : WContainerWidget(),
     session_(session)
 {
-    resize(80, 60);
-
-    setStyleClass("cell");
+    resize(80, 80);
 
     clicked().connect(this, &CalendarCell::showCellDialog);
 }
@@ -43,13 +43,34 @@ void CalendarCell::update(const WDate& date) {
     header->setStyleClass("cell-header");
     addWidget(std::move(header));
 
-    auto period = CreditTimePeriod(user->creditTimesInRange(date, date.addDays(1)));
+    if(date != WDate::currentDate()) {
+      setStyleClass("cell");
+    }
+    else {
+      setStyleClass("cell-today");
+    }
 
-    addWidget(std::make_unique<WText>( "Ist: " + period.getAsString() ));
+    //auto period = CreditTimePeriod(user->creditTimesInRange(date, date.addDays(1)));
+    //addWidget(std::make_unique<WText>( "Ist: " + period.getAsString() ));
+
+    auto credit = user->getCreditForRange(date, date.addDays(1));
+    addWidget(std::make_unique<WText>( "Ist: " + secondsToString(credit)));
+
+    std::string debitTime = secondsToString(user->getDebitTimeForDate(date_) * 3600.);
+    addWidget(std::make_unique<WText>( "Soll: " + debitTime ));
 
     auto absence = user->checkAbsence(date);
     if(absence->reason != Absence::Reason::NotAbsent) {
       addWidget(std::make_unique<WText>( Absence::ReasonToString(absence->reason) ));
+    }
+
+    if(date.dayOfWeek() == 1) {  // Monday: show transfer from last week
+
+    }
+    else if(date.dayOfWeek() == 7) {   // Sunday: show week balance
+      double weekBalance = user->getBalanceForRange( date.addDays(-6), date );
+      std::string sWeekBalance = "Woche: "+secondsToString(weekBalance * 3600.);
+      addWidget(std::make_unique<WText>(sWeekBalance));
     }
 
     transaction.commit();

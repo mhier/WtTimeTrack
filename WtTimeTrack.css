@@ -81,9 +81,23 @@
 	text-align: left;
         overflow: hidden;
         text-overflow: ellipsis;
+	background-color: #F0F0F0;
+}
+
+.cell-today {
+	white-space: nowrap;
+	font-size: 10pt;
+	text-align: left;
+        overflow: hidden;
+        text-overflow: ellipsis;
+	background-color: #FFE0E0;
 }
 
 .cell span {
+	display: block;
+}
+
+.cell-today span {
 	display: block;
 }
 
