@@ -70,7 +70,7 @@ class CreditTimePeriod {
 
     /** return hours and minutes of the time period */
     std::tuple<unsigned int, unsigned int> getHoursMinutes() {
-      double minutes = std::round(seconds / 60.);
+      double minutes = std::floor(seconds / 60.);
       double hours = std::floor(minutes / 60.);
       minutes -= hours*60.;
       return {hours, minutes};

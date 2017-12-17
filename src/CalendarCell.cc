@@ -50,14 +50,11 @@ void CalendarCell::update(const WDate& date) {
       setStyleClass("cell-today");
     }
 
-    //auto period = CreditTimePeriod(user->creditTimesInRange(date, date.addDays(1)));
-    //addWidget(std::make_unique<WText>( "Ist: " + period.getAsString() ));
+    auto credit = user->getCreditForRange(date, date);
+    addWidget(std::make_unique<WText>( "Ist: " + secondsToString(credit) ));
 
-    auto credit = user->getCreditForRange(date, date.addDays(1));
-    addWidget(std::make_unique<WText>( "Ist: " + secondsToString(credit)));
-
-    std::string debitTime = secondsToString(user->getDebitTimeForDate(date_) * 3600.);
-    addWidget(std::make_unique<WText>( "Soll: " + debitTime ));
+    auto debit = user->getDebitForRange(date, date);
+    addWidget(std::make_unique<WText>( "Soll: " + secondsToString(debit) ));
 
     auto absence = user->checkAbsence(date);
     if(absence->reason != Absence::Reason::NotAbsent) {
@@ -65,12 +62,12 @@ void CalendarCell::update(const WDate& date) {
     }
 
     if(date.dayOfWeek() == 1) {  // Monday: show transfer from last week
-
+      int transfer = user->getBalanceUntil( date.addDays(-1) );
+      addWidget(std::make_unique<WText>( "Üb: "+secondsToString(transfer) ));
     }
     else if(date.dayOfWeek() == 7) {   // Sunday: show week balance
-      double weekBalance = user->getBalanceForRange( date.addDays(-6), date );
-      std::string sWeekBalance = "Woche: "+secondsToString(weekBalance * 3600.);
-      addWidget(std::make_unique<WText>(sWeekBalance));
+      int weekBalance = user->getBalanceForRange( date.addDays(-6), date );
+      addWidget(std::make_unique<WText>( "Woche: "+secondsToString(weekBalance) ));
     }
 
     transaction.commit();

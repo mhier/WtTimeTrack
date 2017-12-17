@@ -26,6 +26,7 @@ using namespace Wt;
 namespace dbo = Wt::Dbo;
 
 class User;
+class Session;
 typedef Auth::Dbo::AuthInfo<User> AuthInfo;
 typedef dbo::collection< dbo::ptr<User> > Users;
 
@@ -49,6 +50,18 @@ class User {
     dbo::collection< dbo::ptr<CreditTime> > currentCreditTime() const;
 
     dbo::collection< dbo::ptr<DebitTime> > debitTimes;
+    double getDebitTimeForDate(const WDate &date) const;
+
+    // credit time in seconds for a given range
+    int getCreditForRange(const WDate& from, const WDate& until) const;
+    // debit time in seconds for a given range
+    int getDebitForRange(const WDate& from, const WDate& until) const;
+
+    // in seconds. positive: extra hours
+    int getBalanceForRange(const WDate& from, const WDate& until) const;
+    int getBalanceUntil(const WDate& date) const {
+      return getBalanceForRange(WDate(1970,1,1), date);
+    }
 
     dbo::collection< dbo::ptr<Absence> > absences;
     Wt::Dbo::ptr<Absence> checkAbsence(const WDate& date) const;
@@ -65,6 +78,12 @@ class User {
       dbo::hasMany ( a, debitTimes, dbo::ManyToOne, "debitTimes" );
       dbo::hasMany ( a, absences, dbo::ManyToOne, "absences" );
     }
+
+  private:
+
+    // count debit time in seconds in the given range assuming the given debitTime for each week day.
+    // DebitTime::validFrom is ignored in this function!
+    static int countDebit(const Wt::Dbo::ptr<DebitTime> &debitTime, const WDate &from, const WDate &until);
 };
 
 DBO_EXTERN_TEMPLATES ( User );
