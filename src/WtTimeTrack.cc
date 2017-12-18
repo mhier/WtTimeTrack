@@ -21,6 +21,7 @@
 #include "PlannerCalendar.h"
 #include "AbsenceList.h"
 #include "DebitTimeList.h"
+#include "ClockView.h"
 
 WtTimeTrack::WtTimeTrack() {
     session_.login().changed().connect(this, &WtTimeTrack::onAuthEvent);
@@ -95,7 +96,8 @@ void WtTimeTrack::createMenu() {
 
     auto menu = std::make_unique<Wt::WMenu>(contentStack_);
     auto menu_ = menu.get();
-    menu_->addStyleClass("nav-pills nav-stacked submenu");
+    //menu_->addStyleClass("nav-pills nav-stacked submenu");
+    menu_->addStyleClass("nav-pills nav-stacked main-nav");
     menu_->setWidth(200);
 
     hLayout->addWidget(std::move(menu));
@@ -141,35 +143,10 @@ void WtTimeTrack::debitTimeView() {
 }
 
 void WtTimeTrack::clockView() {
-    Wt::Dbo::Transaction transaction(session_.session_);
 
+    Wt::Dbo::Transaction transaction(session_.session_);
     contentStack_->clear();
-
-    if(session_.user()->currentCreditTime().empty()) {
-      auto button = contentStack_->addWidget(std::make_unique<Wt::WPushButton>("Einstempeln"));
-      button->clicked().connect(this, &WtTimeTrack::clockIn);
-    }
-    else {
-      auto button = contentStack_->addWidget(std::make_unique<Wt::WPushButton>("Ausstempeln"));
-      button->clicked().connect(this, &WtTimeTrack::clockOut);
-    }
-
+    contentStack_->addWidget(std::make_unique<ClockView>(session_));
     transaction.commit();
-
-}
-
-void WtTimeTrack::clockIn() {
-    Wt::Dbo::Transaction transaction(session_.session_);
-    session_.user().modify()->clockIn();
-    transaction.commit();
-    clockView();
-
-}
-
-void WtTimeTrack::clockOut() {
-    Wt::Dbo::Transaction transaction(session_.session_);
-    session_.user().modify()->clockOut();
-    transaction.commit();
-    clockView();
 
 }

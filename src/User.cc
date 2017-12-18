@@ -56,11 +56,13 @@ Wt::Dbo::ptr<Absence> User::checkAbsence(const WDate& date) const {
     return list.front();
 }
 
-double User::getDebitTimeForDate(const WDate &date) const {
-    auto res = debitTimes.find().where("validFrom <= ?").bind(date).orderBy("validFrom DESC").limit(1).resultList();
-    if(res.size() == 0) return 0.0;
-    int dayOfWeek = date.dayOfWeek()-1;     // we are counting from 0 = Monday, WDate from 1 = Monday
-    return res.front()->workHoursPerWeekday[dayOfWeek];
+int User::getDebitTimeForDate(const WDate &date) const {
+    auto list = getDebitTimesWithAbsences();
+    for(auto it = list.rbegin(); it != list.rend(); ++it) {
+      if(it->validFrom <= date) {
+        return it->workHoursPerWeekday[ date.dayOfWeek()-1 ] * 3600;
+      }
+    }
 }
 
 int User::getCreditForRange(const WDate& from, const WDate& until) const {

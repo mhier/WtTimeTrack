@@ -51,15 +51,18 @@ class User {
     dbo::collection< dbo::ptr<CreditTime> > currentCreditTime() const;
 
     dbo::collection< dbo::ptr<DebitTime> > debitTimes;
-    double getDebitTimeForDate(const WDate &date) const;
 
     // obtain a list of DebitTimes taking into account the Absences. Result is ordered by "validFrom"
     std::list<DebitTime> getDebitTimesWithAbsences() const;
 
-    // credit time in seconds for a given range
+    // credit time in seconds for a given range (including both dates)
     int getCreditForRange(const WDate& from, const WDate& until) const;
-    // debit time in seconds for a given range
+
+    // debit time in seconds for a given range (including both dates)
     int getDebitForRange(const WDate& from, const WDate& until) const;
+
+    // debit time for given date in seconds (more efficient than getDebitTimeForRange() in case of a single day)
+    int getDebitTimeForDate(const WDate &date) const;
 
     // in seconds. positive: extra hours
     int getBalanceForRange(const WDate& from, const WDate& until) const;

@@ -427,3 +427,14 @@ div.contents {
 .dl-horizontal.no-clear:after {
   clear: none;
 }
+
+
+.creditText {
+  text-align: center;
+  font-size: 36pt;
+  padding: 20px;
+}
+
+.debitText {
+  text-align: center;
+}
