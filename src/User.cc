@@ -68,17 +68,10 @@ int User::getDebitTimeForDate(const WDate &date) const {
 int User::getCreditForRange(const WDate& from, const WDate& until) const {
     int credit = 0;
 
-    // get result for all clocked-out periods
-    auto res = creditTimes.session()->query<int>("select SUM( (JULIANDAY(stop) - JULIANDAY(start))*86400. ) from creditTime")
-                    .where("start >= ?").bind(from).where("stop <= ?").bind(until.addDays(1)).where("hasClockedOut != 0");
-    credit += res.resultValue();
-
-    // add potential non-yet clocked-out period
-    auto res2 = creditTimes.find().where("hasClockedOut == 0");
-    if(!res2.resultList().empty()) {
-      auto start = std::max( res2.resultValue()->start, WDateTime(from, WTime(0,0,0)) );
-      auto stop = std::min( WDateTime::currentDateTime(), WDateTime(until, WTime(23,59,59)) );
-      credit += std::max( start.secsTo(stop), 0 );
+    auto res = creditTimes.find().where("start >= ?").bind(from)
+                                 .where("start <= ?").bind(until.addDays(1));
+    for(auto time : res.resultList()) {
+      credit += time->getSecs();
     }
 
     return credit;
