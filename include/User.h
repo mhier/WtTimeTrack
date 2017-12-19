@@ -32,7 +32,7 @@ typedef Auth::Dbo::AuthInfo<User> AuthInfo;
 typedef dbo::collection< dbo::ptr<User> > Users;
 
 enum class UserRole {
-    Employee, Admin
+    Employee=0, Admin=1
 };
 
 class User {

@@ -44,9 +44,15 @@ class Session {
 
     static const Auth::AuthService& auth();
     static const Auth::AbstractPasswordService& passwordAuth();
-    static const std::vector<const Auth::OAuthService *>& oAuth();
 
     mutable Dbo::Session session_;
+
+    // add a new user
+    void registerUser(std::string login, std::string email, UserRole role, Wt::WString password);
+
+    // update a user (password will not be changed if empty)
+    void updateUser(Wt::Dbo::ptr<User> user, std::string email, UserRole role, Wt::WString password);
+
 
   private:
     std::unique_ptr<UserDatabase> users_;

@@ -9,14 +9,14 @@
 
 #include "Session.h"
 
-#include "Wt/Auth/AuthService.h"
-#include "Wt/Auth/HashFunction.h"
-#include "Wt/Auth/PasswordService.h"
-#include "Wt/Auth/PasswordStrengthValidator.h"
-#include "Wt/Auth/PasswordVerifier.h"
-#include "Wt/Auth/GoogleService.h"
-#include "Wt/Auth/Dbo/AuthInfo.h"
-#include "Wt/Auth/Dbo/UserDatabase.h"
+#include <Wt/Auth/AuthService.h>
+#include <Wt/Auth/HashFunction.h>
+#include <Wt/Auth/PasswordService.h>
+#include <Wt/Auth/PasswordStrengthValidator.h>
+#include <Wt/Auth/PasswordVerifier.h>
+#include <Wt/Auth/GoogleService.h>
+#include <Wt/Auth/Dbo/AuthInfo.h>
+#include <Wt/Auth/Dbo/UserDatabase.h>
 
 #include <Wt/WApplication.h>
 #include <Wt/WLogger.h>
@@ -38,7 +38,6 @@ namespace {
 
   Auth::AuthService myAuthService;
   Auth::PasswordService myPasswordService(myAuthService);
-  MyOAuth myOAuthServices;
 
 } // anon. namespace
 
@@ -52,9 +51,6 @@ void Session::configureAuth() {
     myPasswordService.setVerifier(std::move(verifier));
     myPasswordService.setStrengthValidator(std::make_unique<Auth::PasswordStrengthValidator>());
     myPasswordService.setAttemptThrottlingEnabled(true);
-
-    if (Auth::GoogleService::configured())
-      myOAuthServices.push_back(new Auth::GoogleService(myAuthService));
 }
 
 Session::Session() {
@@ -146,6 +142,27 @@ const Auth::AbstractPasswordService& Session::passwordAuth() {
     return myPasswordService;
 }
 
-const std::vector<const Auth::OAuthService *>& Session::oAuth() {
-    return myOAuthServices;
+
+void Session::registerUser(std::string login, std::string email, UserRole role, Wt::WString password) {
+    Auth::User newUser = users_->registerNew();
+    newUser.addIdentity(Auth::Identity::LoginName, login);
+    newUser.setEmail(email);
+    myPasswordService.updatePassword(newUser, password);
+
+    // add User data structure and set user role to Admin
+    dbo::ptr<AuthInfo> authInfo = users_->find(newUser);
+    auto user = session_.add(std::make_unique<User>());
+    authInfo.modify()->setUser(user);
+    user.modify()->role = role;
+    user.flush();
+}
+
+
+void Session::updateUser(Wt::Dbo::ptr<User> user, std::string email, UserRole role, Wt::WString password) {
+    // add User data structure and set user role to Admin
+    dbo::ptr<AuthInfo> authInfo = user->authInfos.front();
+    auto theUser = users_->find(authInfo);
+    user.modify()->role = role;
+    authInfo.modify()->setEmail(email);
+    if(password != "") myPasswordService.updatePassword(theUser, password);
 }
