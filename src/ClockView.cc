@@ -39,8 +39,7 @@ void ClockView::update(bool fullUpdate) {
 
       auto clockInOutPanel = layout->addWidget(std::make_unique<Wt::WPanel>(), 0, 0);
       clockInOutPanel->setTitle("Ein-/Ausstempeln");
-      clockInOutPanel->setCollapsible(true);
-      clockInOutPanel->addStyleClass("centered-example");
+      clockInOutPanel->addStyleClass("panel");
 
       if(session_.user()->currentCreditTime().empty()) {
         auto button = clockInOutPanel->setCentralWidget(std::make_unique<Wt::WPushButton>("Einstempeln"));
@@ -63,8 +62,7 @@ void ClockView::update(bool fullUpdate) {
 
       auto todayPanel = layout->addWidget(std::make_unique<Wt::WPanel>(), 1, 0);
       todayPanel->setTitle("Heute: "+WDate::currentDate().toString("yyyy-MM-dd"));
-      todayPanel->setCollapsible(true);
-      todayPanel->addStyleClass("centered-example");
+      todayPanel->addStyleClass("panel");
 
       todayText = todayPanel->setCentralWidget(std::make_unique<Wt::WText>());
     }
@@ -79,8 +77,7 @@ void ClockView::update(bool fullUpdate) {
     if(fullUpdate) {
       auto weekPanel = layout->addWidget(std::make_unique<Wt::WPanel>(), 2, 0);
       weekPanel->setTitle("Diese Woche");
-      weekPanel->setCollapsible(true);
-      weekPanel->addStyleClass("centered-example");
+      weekPanel->addStyleClass("panel");
 
       WDate mon = WDate::currentDate();
       mon.addDays( -(mon.dayOfWeek()-1) );
