@@ -42,6 +42,7 @@ class WtTimeTrack : public WContainerWidget {
     void absencesView();
     void clockView();
     void debitTimeView();
+    void holidayView();
 
     void clockIn();
     void clockOut();

@@ -56,7 +56,7 @@ DebitTimeDialog::DebitTimeDialog(Updateable *owner, Session &session, Wt::Dbo::p
       grid->addWidget(std::make_unique<Wt::WText>(text), 8, 1);
     }
 
-    if(!createNew) {   // existing absence might be deleted
+    if(!createNew) {   // existing entry might be deleted
       Wt::WPushButton *del = footer()->addWidget(std::make_unique<Wt::WPushButton>("Löschen"));
       del->clicked().connect(this, [=] {
         dbo::Transaction transaction(session_.session_);
@@ -71,7 +71,6 @@ DebitTimeDialog::DebitTimeDialog(Updateable *owner, Session &session, Wt::Dbo::p
     ok->setDefault(true);
     ok->clicked().connect(this, [=] {
       dbo::Transaction transaction(session_.session_);
-      Wt::Dbo::ptr<Absence> absence(std::make_unique<Absence>());
       debitTime_.modify()->validFrom = validFrom->date();
       for(size_t i=0; i<7; ++i) debitTime_.modify()->workHoursPerWeekday[i] = workHoursPerWeekday[i]->value();
       if(createNew) session_.user().modify()->debitTimes.insert(debitTime_);

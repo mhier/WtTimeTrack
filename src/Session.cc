@@ -22,6 +22,7 @@
 #include <Wt/WLogger.h>
 #include <Wt/WException.h>
 
+#include <fstream>
 #include <unistd.h>
 
 namespace dbo = Wt::Dbo;
@@ -68,6 +69,7 @@ Session::Session() {
     session_.mapClass<CreditTime>("creditTime");
     session_.mapClass<DebitTime>("debitTime");
     session_.mapClass<Absence>("absence");
+    session_.mapClass<Holiday>("holiday");
     users_ = std::make_unique<UserDatabase>(session_);
 
     dbo::Transaction transaction(session_);
@@ -94,6 +96,11 @@ Session::Session() {
       log("info") << "Presumably the database already exists, since creating resulted in the following error: " << e.what();
       log("info") << "Using existing database";
     }
+
+    // output SQL for creating tables
+    std::ofstream file("createTables.sql");
+    file << session_.tableCreationSql();
+    file.close();
 
     transaction.commit();
 }

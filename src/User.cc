@@ -8,6 +8,7 @@
  */
 
 #include "User.h"
+#include "Holiday.h"
 
 #include <Wt/Auth/Dbo/AuthInfo.h>
 #include <Wt/Dbo/Impl.h>
@@ -100,16 +101,10 @@ int User::countDebit(const DebitTime &debitTime, const WDate &from, const WDate 
     return std::round(debitHours*3600.);
 }
 
-std::list<DebitTime> User::getDebitTimesWithAbsences() const {
-
-    // put the debit times into a std::list
-    auto debitCollection = debitTimes.find().orderBy("validFrom").resultList();
-    std::list<DebitTime> debitList;
-    for(auto &debit : debitCollection) debitList.push_back(*debit);
-
-    // iterate through absences in reverse order and insert into debitList
-    auto absenceCollection = absences.find().orderBy("first DESC").resultList();
-    for(auto &absence : absenceCollection) {
+// internal non-member function for getDebitTimesWithAbsences(): inject absences and/or holidays into a DebitTime list
+template<class DateRangeList>
+void injectAbsences(std::list<DebitTime> &debitList, DateRangeList dateRangeList) {
+    for(auto &absence : dateRangeList) {
       WDate validUntil = WDate::currentDate().addYears(100);    // 100 years in future: latest debitTime expires
       for(auto it = debitList.rbegin(); it != debitList.rend(); ++it) {
         if(it->validFrom > absence->last || validUntil < absence->first) {
@@ -134,6 +129,22 @@ std::list<DebitTime> User::getDebitTimesWithAbsences() const {
         break;
       }
     }
+}
+
+std::list<DebitTime> User::getDebitTimesWithAbsences() const {
+
+    // put the debit times into a std::list
+    auto debitCollection = debitTimes.find().orderBy("validFrom").resultList();
+    std::list<DebitTime> debitList;
+    for(auto &debit : debitCollection) debitList.push_back(*debit);
+
+    // iterate through absences in reverse order and insert into debitList
+    auto absenceCollection = absences.find().orderBy("first DESC").resultList();
+    injectAbsences(debitList, absenceCollection);
+
+    // iterate through holidays in reverse order and insert into debitList
+    auto holidayCollection = absences.session()->find<Holiday>().orderBy("first DESC").resultList();
+    injectAbsences(debitList, holidayCollection);
 
     return debitList;
 }

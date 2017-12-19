@@ -19,6 +19,7 @@
 #include <Wt/Dbo/backend/Sqlite3.h>
 
 #include "User.h"
+#include "Holiday.h"
 
 using namespace Wt;
 

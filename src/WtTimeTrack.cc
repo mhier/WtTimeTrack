@@ -22,6 +22,7 @@
 #include "AbsenceList.h"
 #include "DebitTimeList.h"
 #include "ClockView.h"
+#include "HolidayList.h"
 
 WtTimeTrack::WtTimeTrack() {
     session_.login().changed().connect(this, &WtTimeTrack::onAuthEvent);
@@ -71,6 +72,9 @@ void WtTimeTrack::handleInternalPath(const std::string &internalPath) {
       }
       else if (internalPath == "/debitTimes") {
         debitTimeView();
+      }
+      else if (internalPath == "/holidays") {
+        holidayView();
       }
       else {
         WApplication::instance()->setInternalPath("/clock",  true);
@@ -147,6 +151,15 @@ void WtTimeTrack::clockView() {
     Wt::Dbo::Transaction transaction(session_.session_);
     contentStack_->clear();
     contentStack_->addWidget(std::make_unique<ClockView>(session_));
+    transaction.commit();
+
+}
+
+void WtTimeTrack::holidayView() {
+
+    Wt::Dbo::Transaction transaction(session_.session_);
+    contentStack_->clear();
+    contentStack_->addWidget(std::make_unique<HolidayList>(session_));
     transaction.commit();
 
 }
