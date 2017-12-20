@@ -33,6 +33,7 @@ DebitTimeDialog::DebitTimeDialog(Updateable *owner, Session &session, Wt::Dbo::p
     }
 
     auto user = session_.user();
+    if(user->role != UserRole::Admin) return;
     Dbo::Transaction transaction(session_.session_);
 
     auto grid = contents()->setLayout(std::make_unique<Wt::WGridLayout>());

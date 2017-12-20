@@ -59,23 +59,26 @@ void DebitTimeList::update() {
       }
       table->elementAt(row, 9)->addWidget(std::make_unique<WText>(formatNumber(sum)));
 
-      for(int i=0; i<10; ++i) {
-        table->elementAt(row,i)->clicked().connect(this, [=] {
-          debitTimeDialog_ = std::make_unique<DebitTimeDialog>(this, session_, debitTime);
-          debitTimeDialog_->show();
-        });
+      if(user->role == UserRole::Admin) {
+        for(int i=0; i<10; ++i) {
+          table->elementAt(row,i)->clicked().connect(this, [=] {
+            debitTimeDialog_ = std::make_unique<DebitTimeDialog>(this, session_, debitTime);
+            debitTimeDialog_->show();
+          });
+        }
       }
     }
 
     addWidget(std::move(table));
 
-    std::string buttonTitle = "Arbeitszeitänderung eintragen...";
-    Wt::WPushButton *newDebitTime = addWidget(std::make_unique<Wt::WPushButton>(buttonTitle));
-    newDebitTime->clicked().connect(this, [=] {
-       debitTimeDialog_ = std::make_unique<DebitTimeDialog>(this, session_, nullptr);
-       debitTimeDialog_->show();
-    } );
-
+    if(user->role == UserRole::Admin) {
+      std::string buttonTitle = "Arbeitszeitänderung eintragen...";
+      Wt::WPushButton *newDebitTime = addWidget(std::make_unique<Wt::WPushButton>(buttonTitle));
+      newDebitTime->clicked().connect(this, [=] {
+        debitTimeDialog_ = std::make_unique<DebitTimeDialog>(this, session_, nullptr);
+        debitTimeDialog_->show();
+      } );
+    }
 
     transaction.commit();
 

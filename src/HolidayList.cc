@@ -49,22 +49,26 @@ void HolidayList::update() {
       table->elementAt(row, 1)->addWidget(std::make_unique<WText>(holiday->first.toString("yyyy-MM-dd")));
       table->elementAt(row, 2)->addWidget(std::make_unique<WText>(holiday->last.toString("yyyy-MM-dd")));
 
-      for(int i=0; i<3; ++i) {
-        table->elementAt(row,i)->clicked().connect(this, [=] {
-          holidayDialog_ = std::make_unique<HolidayDialog>(this, session_, holiday);
-          holidayDialog_->show();
-        });
+      if(user->role == UserRole::Admin) {
+        for(int i=0; i<3; ++i) {
+          table->elementAt(row,i)->clicked().connect(this, [=] {
+            holidayDialog_ = std::make_unique<HolidayDialog>(this, session_, holiday);
+            holidayDialog_->show();
+          });
+        }
       }
     }
 
     addWidget(std::move(table));
 
-    std::string buttonTitle = "Feiertag/Ferien eintragen...";
-    Wt::WPushButton *newHoliday = addWidget(std::make_unique<Wt::WPushButton>(buttonTitle));
-    newHoliday->clicked().connect(this, [=] {
-       holidayDialog_ = std::make_unique<HolidayDialog>(this, session_, nullptr);
-       holidayDialog_->show();
-    } );
+    if(user->role == UserRole::Admin) {
+      std::string buttonTitle = "Feiertag/Ferien eintragen...";
+      Wt::WPushButton *newHoliday = addWidget(std::make_unique<Wt::WPushButton>(buttonTitle));
+      newHoliday->clicked().connect(this, [=] {
+        holidayDialog_ = std::make_unique<HolidayDialog>(this, session_, nullptr);
+        holidayDialog_->show();
+      } );
+    }
 
     transaction.commit();
 

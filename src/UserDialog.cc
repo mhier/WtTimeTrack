@@ -25,6 +25,7 @@ UserDialog::UserDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<User> u
     contents()->addStyleClass("form-group");
 
     Dbo::Transaction transaction(session_.session_);
+    if(session_.user()->role != UserRole::Admin) return;
 
     bool createNew = false;
     if(user_.get() == nullptr) createNew = true;

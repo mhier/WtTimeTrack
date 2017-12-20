@@ -29,6 +29,8 @@ void UserList::update() {
     clear();
 
     dbo::Transaction transaction(session_.session_);
+    auto user = session_.user();
+    if(user->role != UserRole::Admin) return;
 
     addWidget(std::make_unique<WText>("<h2>Benutzerverwaltung</h2>"));
 

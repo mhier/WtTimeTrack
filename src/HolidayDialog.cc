@@ -22,6 +22,8 @@ HolidayDialog::HolidayDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<H
     contents()->addStyleClass("form-group");
 
     Dbo::Transaction transaction(session_.session_);
+    auto user = session_.user();
+    if(user->role != UserRole::Admin) return;
 
     bool createNew = false;
     if(holiday_.get() == nullptr) {
