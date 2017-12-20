@@ -145,7 +145,7 @@ void WtTimeTrack::debitTimeView() {
 
     Wt::Dbo::Transaction transaction(session_.session_);
     contentStack_->clear();
-    contentStack_->addWidget(std::make_unique<DebitTimeList>(session_));
+    contentStack_->addWidget(std::make_unique<DebitTimeList>(session_, session_.user()));
     transaction.commit();
 
 }

@@ -79,6 +79,7 @@ class User {
     template<class Action>
     void persist ( Action& a ) {
       dbo::field ( a, role, "role" );
+      dbo::field ( a, name, "name" );
 
       dbo::hasMany ( a, authInfos, dbo::ManyToOne, "user" );
       dbo::hasMany ( a, creditTimes, dbo::ManyToOne, "creditTimes" );

@@ -25,13 +25,15 @@ using namespace Wt;
 
 class DebitTimeList : public WContainerWidget, public Updateable {
   public:
-    DebitTimeList(Session &session);
+    DebitTimeList(Session &session, Wt::Dbo::ptr<User> forUser);
 
     void update() override;
 
     static const std::array<std::string, 7> dayOfWeekNames;
 
     static std::string formatNumber(double hours);
+
+    Wt::Dbo::ptr<User> forUser_;
 
   private:
     Session &session_;

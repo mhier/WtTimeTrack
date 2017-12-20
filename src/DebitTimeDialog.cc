@@ -18,8 +18,9 @@
 #include <Wt/WComboBox.h>
 #include <Wt/WDoubleSpinBox.h>
 
-DebitTimeDialog::DebitTimeDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<DebitTime> debitTime)
-: Wt::WDialog("Arbeitsstunden"), owner_(owner), session_(session), debitTime_(debitTime)
+DebitTimeDialog::DebitTimeDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<DebitTime> debitTime,
+                                 Wt::Dbo::ptr<User> forUser)
+: Wt::WDialog("Arbeitsstunden"), owner_(owner), session_(session), debitTime_(debitTime), forUser_(forUser)
 {
     contents()->addStyleClass("form-group");
 
@@ -78,7 +79,7 @@ DebitTimeDialog::DebitTimeDialog(Updateable *owner, Session &session, Wt::Dbo::p
 
       // check if edit is valid
       if(createNew || debitTime_->validFrom != validFrom->date()) {
-        if(!user->debitTimes.find().where("validFrom = ?").bind(validFrom->date()).resultList().empty()) {
+        if(!forUser_->debitTimes.find().where("validFrom = ?").bind(validFrom->date()).resultList().empty()) {
           errorMessage->setText("Fehler: Es wurde bereits eine Arbeitszeit mit Gültigkeit ab genau dem angegebenen Datum eingetragen!");
           errorMessage->show();
           return;
@@ -88,7 +89,7 @@ DebitTimeDialog::DebitTimeDialog(Updateable *owner, Session &session, Wt::Dbo::p
       // apply modifications
       debitTime_.modify()->validFrom = validFrom->date();
       for(size_t i=0; i<7; ++i) debitTime_.modify()->workHoursPerWeekday[i] = workHoursPerWeekday[i]->value();
-      if(createNew) session_.user().modify()->debitTimes.insert(debitTime_);
+      if(createNew) forUser_.modify()->debitTimes.insert(debitTime_);
       transaction.commit();
       owner_->update();
       hide();

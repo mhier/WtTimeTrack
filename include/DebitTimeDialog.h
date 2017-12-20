@@ -21,13 +21,14 @@ using namespace Wt;
 
 class DebitTimeDialog : public WDialog {
   public:
-    DebitTimeDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<DebitTime> debitTime);
+    DebitTimeDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<DebitTime> debitTime, Wt::Dbo::ptr<User> forUser);
 
     Updateable *owner_;
     Session &session_;
     Wt::Dbo::ptr<DebitTime> debitTime_;
 
     Wt::WText *errorMessage;
+    Wt::Dbo::ptr<User> forUser_;
 };
 
 #endif //DEBIT_TIME_DIALOG_H_

@@ -75,16 +75,7 @@ Session::Session() {
       /*
       * Add a default admin/admin account
       */
-      Auth::User adminUser = users_->registerNew();
-      adminUser.addIdentity(Auth::Identity::LoginName, "admin");
-      myPasswordService.updatePassword(adminUser, "admin");
-
-      // add User data structure and set user role to Admin
-      dbo::ptr<AuthInfo> authInfo = users_->find(adminUser);
-      auto user = session_.add(std::make_unique<User>());
-      authInfo.modify()->setUser(user);
-      user.modify()->role = UserRole::Admin;
-      user.flush();
+      registerUser("admin", "admin@example.com", UserRole::Admin, "admin");
 
       log("info") << "Database created";
     }
@@ -154,6 +145,7 @@ void Session::registerUser(std::string login, std::string email, UserRole role, 
     auto user = session_.add(std::make_unique<User>());
     authInfo.modify()->setUser(user);
     user.modify()->role = role;
+    user.modify()->name = login;
     user.flush();
 }
 
