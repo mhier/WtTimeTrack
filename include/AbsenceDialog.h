@@ -20,10 +20,15 @@ using namespace Wt;
 
 class AbsenceDialog : public WDialog {
   public:
-    AbsenceDialog(Updateable *owner, Session &session, WDate suggestedStartDate);
+    AbsenceDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<Absence> absence);
 
     Session &session_;
     Updateable *owner_;
+
+    Wt::Dbo::ptr<Absence> absence_;
+
+    Wt::WText *errorMessage;
+
 };
 
 #endif //ABSENCE_DIALOG_H_

@@ -87,11 +87,18 @@ void CalendarCellDialog::update() {
         entryDialog_->show();
     } );
 
-    std::string absenceButtonTitle = "Abwesenheit melden...";
-    if(absence->reason != Absence::Reason::NotAbsent) absenceButtonTitle = "Abwesenheit bearbeiten...";
+    std::string absenceButtonTitle;
+    if(absence->reason != Absence::Reason::NotAbsent) {
+      absenceButtonTitle = "Abwesenheit bearbeiten...";
+    }
+    else {
+      absenceButtonTitle = "Abwesenheit melden...";
+      absence.modify()->first = cell_->date();
+      absence.modify()->last = cell_->date();
+    }
     Wt::WPushButton *newAbsence = footer()->addWidget(std::make_unique<Wt::WPushButton>(absenceButtonTitle));
     newAbsence->clicked().connect(this, [=] {
-       absenceDialog_ = std::make_unique<AbsenceDialog>(this, cell_->session_, cell_->date());
+       absenceDialog_ = std::make_unique<AbsenceDialog>(this, cell_->session_, absence);
        absenceDialog_->show();
     } );
 

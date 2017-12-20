@@ -50,10 +50,13 @@ DebitTimeDialog::DebitTimeDialog(Updateable *owner, Session &session, Wt::Dbo::p
 
     contents()->setWidth(600);
 
+    errorMessage = grid->addWidget(std::make_unique<Wt::WText>(), 8, 1);
+    errorMessage->hide();
+
     if(!createNew) {
       std::string text = "Achtung, die Arbeitszeit wird rückwirkend geändert. Ist dies nicht gewünscht, bitte den "
                          "Button 'Arbeitszeitänderung eintragen...' verwenden!";
-      grid->addWidget(std::make_unique<Wt::WText>(text), 8, 1);
+      grid->addWidget(std::make_unique<Wt::WText>(text), 9, 1);
     }
 
     if(!createNew) {   // existing entry might be deleted
@@ -71,6 +74,17 @@ DebitTimeDialog::DebitTimeDialog(Updateable *owner, Session &session, Wt::Dbo::p
     ok->setDefault(true);
     ok->clicked().connect(this, [=] {
       dbo::Transaction transaction(session_.session_);
+
+      // check if edit is valid
+      if(createNew || debitTime_->validFrom != validFrom->date()) {
+        if(!user->debitTimes.find().where("validFrom = ?").bind(validFrom->date()).resultList().empty()) {
+          errorMessage->setText("Fehler: Es wurde bereits eine Arbeitszeit mit Gültigkeit ab genau dem angegebenen Datum eingetragen!");
+          errorMessage->show();
+          return;
+        }
+      }
+
+      // apply modifications
       debitTime_.modify()->validFrom = validFrom->date();
       for(size_t i=0; i<7; ++i) debitTime_.modify()->workHoursPerWeekday[i] = workHoursPerWeekday[i]->value();
       if(createNew) session_.user().modify()->debitTimes.insert(debitTime_);

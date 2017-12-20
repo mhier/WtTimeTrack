@@ -52,7 +52,7 @@ void AbsenceList::update() {
 
       for(int i=0; i<4; ++i) {
         table->elementAt(row,i)->clicked().connect(this, [=] {
-          absenceDialog_ = std::make_unique<AbsenceDialog>(this, session_, absence->first);
+          absenceDialog_ = std::make_unique<AbsenceDialog>(this, session_, absence);
           absenceDialog_->show();
         });
       }
@@ -63,7 +63,7 @@ void AbsenceList::update() {
     std::string absenceButtonTitle = "Abwesenheit melden...";
     Wt::WPushButton *newAbsence = addWidget(std::make_unique<Wt::WPushButton>(absenceButtonTitle));
     newAbsence->clicked().connect(this, [=] {
-       absenceDialog_ = std::make_unique<AbsenceDialog>(this, session_, WDate::currentDate());
+       absenceDialog_ = std::make_unique<AbsenceDialog>(this, session_, nullptr);
        absenceDialog_->show();
     } );
 

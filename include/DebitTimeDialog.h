@@ -26,6 +26,8 @@ class DebitTimeDialog : public WDialog {
     Updateable *owner_;
     Session &session_;
     Wt::Dbo::ptr<DebitTime> debitTime_;
+
+    Wt::WText *errorMessage;
 };
 
 #endif //DEBIT_TIME_DIALOG_H_
