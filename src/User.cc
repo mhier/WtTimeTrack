@@ -25,7 +25,7 @@ collection< ptr<CreditTime> > User::creditTimesInRange(const WDate& from, const 
 }
 
 collection< ptr<CreditTime> > User::currentCreditTime() const {
-    return creditTimes.find().where("hasClockedOut == 0");
+    return creditTimes.find().where("hasClockedOut = 0");
 }
 
 void User::clockIn() {
@@ -64,6 +64,7 @@ int User::getDebitTimeForDate(const WDate &date) const {
         return it->workHoursPerWeekday[ date.dayOfWeek()-1 ] * 3600;
       }
     }
+    return 0;
 }
 
 int User::getCreditForRange(const WDate& from, const WDate& until) const {
