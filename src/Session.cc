@@ -17,6 +17,7 @@
 #include <Wt/Auth/GoogleService.h>
 #include <Wt/Auth/Dbo/AuthInfo.h>
 #include <Wt/Auth/Dbo/UserDatabase.h>
+#include <Wt/Dbo/backend/MySQL.h>
 
 #include <Wt/WApplication.h>
 #include <Wt/WLogger.h>
@@ -25,7 +26,10 @@
 #include <fstream>
 #include <unistd.h>
 
+#include <boost/program_options.hpp>
+
 namespace dbo = Wt::Dbo;
+namespace po = boost::program_options;
 
 namespace {
 
@@ -54,9 +58,55 @@ void Session::configureAuth() {
 }
 
 Session::Session() {
-    auto sqlite3 = std::make_unique<Dbo::backend::Sqlite3>(WApplication::instance()->appRoot() + "WtTimeTrack.db");
-    sqlite3->setProperty("show-queries", "true");
-    session_.setConnection(std::move(sqlite3));
+
+    po::options_description options("Allowed options");
+    options.add_options()
+        ("sqlite", "use the sqlite database backend")
+        ("sqlite-database", po::value<std::string>(), "file name of the sqlite data base")
+        ("mysql", "use the MySQL database backend")
+        ("mysql-database", po::value<std::string>(), "MySQL database name")
+        ("mysql-user", po::value<std::string>(), "MySQL database user name")
+        ("mysql-password", po::value<std::string>(), "MySQL database password")
+        ("mysql-host", po::value<std::string>(), "MySQL database host")
+    ;
+
+    po::variables_map vm;
+    store(po::parse_config_file<char>("WtTimeTrack.cfg", options), vm);
+    po::notify(vm);
+
+    if(vm.count("sqlite") && vm.count("mysql")) {
+      std::cout << "ERROR: cannot use sqlite and mysql at the same time!" << std::endl;
+      exit(1);
+    }
+    if(!vm.count("sqlite") && !vm.count("mysql")) {
+      std::cout << "ERROR: You have to specify either sqlite or mysql as a database!" << std::endl;
+      exit(1);
+    }
+
+    if(vm.count("sqlite")) {
+      if(!vm.count("sqlite-database")) {
+        std::cout << "ERROR: You have to specify the file name for the sqlite data base (sqlite-database option)" << std::endl;
+        exit(1);
+      }
+      auto theDB = std::make_unique<Dbo::backend::Sqlite3>( WApplication::instance()->appRoot() +
+                                                            vm["sqlite-database"].as<std::string>() );
+      //theDB->setProperty("show-queries", "true");
+      session_.setConnection(std::move(theDB));
+    }
+    else {
+      if(!vm.count("mysql-database") || !vm.count("mysql-user") || !vm.count("mysql-password") || !vm.count("mysql-host")) {
+        std::cout << "ERROR: Missing parameter for the MySQL data base connection." << std::endl;
+        exit(1);
+      }
+      auto theDB = std::make_unique<Wt::Dbo::backend::MySQL>( vm["mysql-database"].as<std::string>(),
+                                                              vm["mysql-user"].as<std::string>(),
+                                                              vm["mysql-password"].as<std::string>(),
+                                                              vm["mysql-host"].as<std::string>()      );
+      //theDB->setProperty("show-queries", "true");
+      session_.setConnection(std::move(theDB));
+    }
+
+
 
     session_.mapClass<User>("user");
     session_.mapClass<AuthInfo>("auth_info");

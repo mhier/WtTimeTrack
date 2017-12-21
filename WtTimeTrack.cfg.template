@@ -1,0 +1,8 @@
+sqlite=1
+sqlite-database=WtTimeTrack.db
+
+#mysql=1
+mysql-database=WtTimeTrack
+mysql-user=WtTimeTrack
+mysql-password=changeme
+mysql-host=localhost

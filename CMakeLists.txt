@@ -8,6 +8,8 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
 
 SET(WTtest_TARGET wt_project.wt)
 
+find_package(Boost REQUIRED COMPONENTS program_options signals system)
+
 INCLUDE_DIRECTORIES(/home/mhier/compile/wt-4.0.2/install/include)
 LINK_DIRECTORIES(/home/mhier/compile/wt-4.0.2/install/lib)
 
@@ -18,4 +20,4 @@ CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/wt_project ${CMAKE_BINARY_DIR}/wt_project COP
 CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/WtTimeTrack.css ${CMAKE_BINARY_DIR}/WtTimeTrack.css COPYONLY)
 
 ADD_EXECUTABLE(${WTtest_TARGET} ${WTtest_SOURCE})
-TARGET_LINK_LIBRARIES(${WTtest_TARGET} ${WT_CONNECTOR} wt wtdbo wtdbosqlite3 boost_system boost_signals crypt)
+TARGET_LINK_LIBRARIES(${WTtest_TARGET} ${WT_CONNECTOR} wt wtdbo wtdbosqlite3 wtdbomysql ${Boost_LIBRARIES})
