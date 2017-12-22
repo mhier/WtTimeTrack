@@ -12,6 +12,7 @@
 
 #include "User.h"
 #include "Session.h"
+#include "MonthView.h"
 
 #include <Wt/Dbo/Dbo.h>
 #include <Wt/WCalendar.h>
@@ -20,12 +21,15 @@ using namespace Wt;
 
 class PlannerCalendar : public WCalendar {
   public:
-    PlannerCalendar(Session &session);
-  protected:
+    PlannerCalendar(Session &session, MonthView &view);
+
     virtual WWidget* renderCell(WWidget* widget, const WDate& date) override;
 
-  private:
     Session &session_;
+    MonthView &view_;
+
+    // used in CalendarCell to determine the current row
+    int rowCounter = 0;
 };
 
 #endif //PLANNER_CALENDAR_H_

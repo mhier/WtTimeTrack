@@ -18,7 +18,7 @@
 #include <Wt/WPushButton.h>
 
 #include "WtTimeTrack.h"
-#include "PlannerCalendar.h"
+#include "MonthView.h"
 #include "AbsenceList.h"
 #include "DebitTimeList.h"
 #include "ClockView.h"
@@ -106,8 +106,7 @@ void WtTimeTrack::createMenu() {
 
     auto menu = std::make_unique<Wt::WMenu>(contentStack_);
     auto menu_ = menu.get();
-    //menu_->addStyleClass("nav-pills nav-stacked submenu");
-    menu_->addStyleClass("nav-pills nav-stacked main-nav");
+    menu_->addStyleClass("nav nav-pills nav-stacked");
     menu_->setWidth(200);
 
     hLayout->addWidget(std::move(menu));
@@ -131,7 +130,7 @@ void WtTimeTrack::monthView() {
 
     Wt::Dbo::Transaction transaction(session_.session_);
     contentStack_->clear();
-    contentStack_->addWidget(std::make_unique<PlannerCalendar>( session_ ));
+    contentStack_->addWidget(std::make_unique<MonthView>( session_ ));
 
 }
 

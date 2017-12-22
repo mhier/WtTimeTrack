@@ -14,6 +14,21 @@
 #include <string>
 
 inline std::string secondsToString(int seconds, bool includeSecs=false) {
+
+    std::string pre;
+    std::string post = "</span>";
+    if(seconds > 0) {
+      pre = "<span class=\"positiveTime\">";
+    }
+    else if(seconds == 0) {
+      pre = "<span class=\"neutralTime\">";
+    }
+    else {
+      pre = "<span class=\"negativeTime\">";
+      seconds = -seconds;
+    }
+
+
     int secs = seconds % 60;
     int minutes = (seconds / 60) % 60;
     int hours = seconds / 3600;
@@ -24,9 +39,9 @@ inline std::string secondsToString(int seconds, bool includeSecs=false) {
     if(includeSecs) {
       std::string ssecs = std::to_string(static_cast<int>(secs));
       if(ssecs.length() == 1) ssecs = "0"+ssecs;
-      return shours + ":" + sminutes + ":" + ssecs;
+      return pre + shours + ":" + sminutes + ":" + ssecs + post;
     }
-    return shours + ":" + sminutes;
+    return pre + shours + ":" + sminutes + post;
 }
 
 #endif // INCLUDE_UTILS_H_

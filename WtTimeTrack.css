@@ -71,7 +71,6 @@
 }
 
 .calendar {
-	width: 600px;
 	margin: 50px auto;
 }
 
@@ -82,6 +81,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
         border: 1px solid #AAAAAA;
+	display: block;
 }
 
 .cell-today {
@@ -93,19 +93,12 @@
         border: 1px solid #FF6666;
 }
 
-.cell span {
-	display: block;
-}
-
-.cell-today span {
-	display: block;
-}
-
 .cell-header {
 	font-weight: bold;
 	background-color: #C3D9FF;
 	color: black;
         padding: 0px 3px;
+	display: block;
 }
 
 .cell-extra {
@@ -443,4 +436,18 @@ div.contents {
 
 .debitText {
   text-align: center;
+}
+
+.positiveTime {
+  color: green;
+  display: inline;
+}
+
+.negativeTime {
+  color: #C04040;
+  display: inline;
+}
+
+.neutralTime {
+  display: inline;
 }

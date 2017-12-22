@@ -73,19 +73,43 @@ void ClockView::update(bool fullUpdate) {
     todayText->setTextFormat(Wt::TextFormat::XHTML);
 
     if(fullUpdate) {
+      std::cout << "HIER 1" << std::endl;
       auto weekPanel = layout->addWidget(std::make_unique<Wt::WPanel>(), 2, 0);
       weekPanel->setTitle("Diese Woche");
       weekPanel->addStyleClass("panel");
 
-      WDate mon = WDate::currentDate();
-      mon.addDays( -(mon.dayOfWeek()-1) );
+      std::cout << "HIER 2" << std::endl;
+      WDate mon = WDate::currentDate().addDays( -(WDate::currentDate().dayOfWeek()-1) );
+      std::cout << "HIER 3" << std::endl;
       WDate sun = mon.addDays(7);
+      std::cout << "HIER 4" << std::endl;
       auto debitW = user->getDebitForRange(mon,sun);
       auto creditW = user->getCreditForRange(mon,sun);
 
       auto weekText = weekPanel->setCentralWidget(
         std::make_unique<Wt::WText>("<p>Ist: "+secondsToString(creditW)+"</p><p>Soll: "+secondsToString(debitW)+"</p>"));
       weekText->setTextFormat(Wt::TextFormat::XHTML);
+
+      std::cout << "HIER 5" << std::endl;
+      auto monthPanel = layout->addWidget(std::make_unique<Wt::WPanel>(), 3, 0);
+      monthPanel->setTitle("Dieser Monat");
+      monthPanel->addStyleClass("panel");
+
+      std::cout << "HIER 6" << std::endl;
+      WDate firstDay = WDate::currentDate().addDays( -(WDate::currentDate().day()-1) );
+      std::cout << "HIER 7" << std::endl;
+      WDate lastDay = firstDay.addMonths(1).addDays(-1);
+      std::cout << "HIER 8" << std::endl;
+      auto debitM = user->getDebitForRange(firstDay,lastDay);
+      auto creditM = user->getCreditForRange(firstDay,lastDay);
+
+      std::cout << "HIER 9" << std::endl;
+      auto monthText = monthPanel->setCentralWidget(
+        std::make_unique<Wt::WText>("<p>Ist: "+secondsToString(creditM)+"</p><p>Soll: "+secondsToString(debitM)+"</p>"));
+      std::cout << "HIER 10" << std::endl;
+      monthText->setTextFormat(Wt::TextFormat::XHTML);
+      std::cout << "HIER 11" << std::endl;
+
     }
 
 }

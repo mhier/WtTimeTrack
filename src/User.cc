@@ -61,7 +61,7 @@ int User::getDebitTimeForDate(const WDate &date) const {
     auto list = getDebitTimesWithAbsences();
     for(auto it = list.rbegin(); it != list.rend(); ++it) {
       if(it->validFrom <= date) {
-        return it->workHoursPerWeekday[ date.dayOfWeek()-1 ] * 3600;
+        return - (it->workHoursPerWeekday[ date.dayOfWeek()-1 ] * 3600);
       }
     }
     return 0;
@@ -165,11 +165,11 @@ int User::getDebitForRange(const WDate& from, const WDate& until) const {
       if(it->validFrom < from) break;
       validUntil = it->validFrom.addDays(-1);
     }
-    return result;
+    return -result;
 }
 
 int User::getBalanceForRange(const WDate& from, const WDate& until) const {
     auto debit = getDebitForRange(from, until);
     auto credit = getCreditForRange(from, until);
-    return credit - debit;
+    return credit + debit;
 }

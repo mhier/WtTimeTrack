@@ -10,12 +10,12 @@
 #include "PlannerCalendar.h"
 #include "CalendarCell.h"
 
-PlannerCalendar::PlannerCalendar(Session &session)
+PlannerCalendar::PlannerCalendar(Session &session, MonthView &view)
   : WCalendar(),
-    session_(session)
+    session_(session),
+    view_(view)
 {
   setStyleClass(styleClass() + " calendar");
-
   setSelectionMode(SelectionMode::None);
 }
 
@@ -23,8 +23,8 @@ WWidget* PlannerCalendar::renderCell(WWidget* widget, const WDate& date) {
   if(!widget) widget = new CalendarCell(session_);
 
   CalendarCell* cc = (CalendarCell*)widget;
-  cc->update(date);
   cc->owner_ = this;
+  cc->update(date);
 
   return cc;
 }
