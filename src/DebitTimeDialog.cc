@@ -38,6 +38,8 @@ DebitTimeDialog::DebitTimeDialog(Updateable *owner, Session &session, Wt::Dbo::p
     Dbo::Transaction transaction(session_.session_);
 
     auto grid = contents()->setLayout(std::make_unique<Wt::WGridLayout>());
+    grid->setColumnResizable(0, false, Wt::WLength(10, Wt::LengthUnit::FontEx));
+    grid->setColumnResizable(0, false, Wt::WLength(50, Wt::LengthUnit::FontEx));
 
     grid->addWidget(std::make_unique<Wt::WText>("Gültig ab: "), 0, 0);
     auto validFrom = grid->addWidget(std::make_unique<Wt::WDateEdit>(), 0, 1);
@@ -50,7 +52,7 @@ DebitTimeDialog::DebitTimeDialog(Updateable *owner, Session &session, Wt::Dbo::p
       workHoursPerWeekday[i]->setValue(debitTime_->workHoursPerWeekday[i]);
     }
 
-    contents()->setWidth(600);
+    contents()->setWidth(Wt::WLength(65, Wt::LengthUnit::FontEx));
 
     errorMessage = grid->addWidget(std::make_unique<Wt::WText>(), 8, 1);
     errorMessage->hide();
@@ -83,6 +85,19 @@ DebitTimeDialog::DebitTimeDialog(Updateable *owner, Session &session, Wt::Dbo::p
           errorMessage->show();
           return;
         }
+      }
+      for(size_t i=0; i<7; ++i) {
+        if(workHoursPerWeekday[i]->value() < 0 || workHoursPerWeekday[i]->value() > 24) {
+          errorMessage->setText("Fehler: Arbeitszeit für " + DebitTimeList::dayOfWeekNames[i] + " nicht gültig!");
+          errorMessage->show();
+          return;
+        }
+      }
+
+      if(!validFrom->date().isValid()) {
+        errorMessage->setText("Fehler: Bitte Datum angeben!");
+        errorMessage->show();
+        return;
       }
 
       // apply modifications
