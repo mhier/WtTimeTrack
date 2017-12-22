@@ -71,6 +71,12 @@ AbsenceDialog::AbsenceDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<A
       dbo::Transaction transaction(session_.session_);
 
       // check if edit is valid
+      if(!de1->date().isValid() || !de2->date().isValid()) {
+        errorMessage->setText("Fehler: Erster und letzter Abwesenheitstag muss angegeben werden!");
+        errorMessage->show();
+        return;
+      }
+
       if(de1->date() > de2->date()) {
         errorMessage->setText("Fehler: Das Ende der Abwesenheit liegt vor dem Anfang!");
         errorMessage->show();
