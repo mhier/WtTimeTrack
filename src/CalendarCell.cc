@@ -70,8 +70,6 @@ void CalendarCell::update(const WDate& date) {
       int weekBalance = user->getBalanceForRange( date.addDays(-6), date );
       addWidget(std::make_unique<WText>( "Woche: "+secondsToString(weekBalance) ));
     }
-
-    transaction.commit();
 }
 
 void CalendarCell::showCellDialog() {

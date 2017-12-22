@@ -64,7 +64,6 @@ UserDialog::UserDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<User> u
       del->clicked().connect(this, [=] {
         dbo::Transaction transaction(session_.session_);
         user_.remove();
-        transaction.commit();
         owner_->update();
         hide();
       } );
@@ -82,15 +81,12 @@ UserDialog::UserDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<User> u
         session_.updateUser( user_, editEmail->text().toUTF8(),
                                static_cast<UserRole>(editRole->currentIndex()), editPassword->text() );
       }
-      transaction.commit();
       owner_->update();
       hide();
     } );
 
     Wt::WPushButton *cancel = footer()->addWidget(std::make_unique<Wt::WPushButton>("Abbrechen"));
     cancel->clicked().connect(this, [=] {hide();} );
-
-    transaction.commit();
 
 }
 

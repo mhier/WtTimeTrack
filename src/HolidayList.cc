@@ -70,6 +70,4 @@ void HolidayList::update() {
       } );
     }
 
-    transaction.commit();
-
 }

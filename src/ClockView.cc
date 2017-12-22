@@ -46,7 +46,6 @@ void ClockView::update(bool fullUpdate) {
         button->clicked().connect(this, [=] {
           Wt::Dbo::Transaction transaction(session_.session_);
           session_.user().modify()->clockIn();
-          transaction.commit();
           update();
         });
       }
@@ -55,7 +54,6 @@ void ClockView::update(bool fullUpdate) {
         button->clicked().connect(this, [=] {
           Wt::Dbo::Transaction transaction(session_.session_);
           session_.user().modify()->clockOut();
-          transaction.commit();
           update();
         });
       }

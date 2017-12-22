@@ -80,6 +80,4 @@ void UserList::update() {
        userDialog_->show();
     } );
 
-    transaction.commit();
-
 }

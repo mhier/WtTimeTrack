@@ -66,7 +66,6 @@ DebitTimeDialog::DebitTimeDialog(Updateable *owner, Session &session, Wt::Dbo::p
       del->clicked().connect(this, [=] {
         dbo::Transaction transaction(session_.session_);
         debitTime_.remove();
-        transaction.commit();
         owner_->update();
         hide();
       } );
@@ -90,15 +89,12 @@ DebitTimeDialog::DebitTimeDialog(Updateable *owner, Session &session, Wt::Dbo::p
       debitTime_.modify()->validFrom = validFrom->date();
       for(size_t i=0; i<7; ++i) debitTime_.modify()->workHoursPerWeekday[i] = workHoursPerWeekday[i]->value();
       if(createNew) forUser_.modify()->debitTimes.insert(debitTime_);
-      transaction.commit();
       owner_->update();
       hide();
     } );
 
     Wt::WPushButton *cancel = footer()->addWidget(std::make_unique<Wt::WPushButton>("Abbrechen"));
     cancel->clicked().connect(this, [&] {hide();} );
-
-    transaction.commit();
 
 }
 

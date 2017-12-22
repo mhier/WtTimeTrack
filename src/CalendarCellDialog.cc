@@ -108,8 +108,6 @@ void CalendarCellDialog::update() {
       this->hide();
     });
 
-    transaction.commit();
-
     // update all calendar cells - this is required if update() is called from child dialogs
     cell_->owner_->browseToPreviousMonth();
     cell_->owner_->browseToNextMonth();

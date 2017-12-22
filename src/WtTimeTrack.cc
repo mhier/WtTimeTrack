@@ -77,7 +77,7 @@ void WtTimeTrack::handleInternalPath(const std::string &internalPath) {
       else if (internalPath == "/holidays") {
         holidayView();
       }
-      else if (internalPath == "/users") {
+      else if (internalPath == "/users" && session_.user()->role == UserRole::Admin) {
         userView();
       }
       else {
@@ -90,6 +90,7 @@ void WtTimeTrack::handleInternalPath(const std::string &internalPath) {
 }
 
 void WtTimeTrack::createMenu() {
+    Wt::Dbo::Transaction transaction(session_.session_);
 
     auto pane = std::make_unique<Wt::WContainerWidget>();
     auto pane_ = pane.get();
@@ -119,7 +120,9 @@ void WtTimeTrack::createMenu() {
     menu_->addItem("Abwesenheit")->setPathComponent("absences");
     menu_->addItem("Arbeitszeiten")->setPathComponent("debitTimes");
     menu_->addItem("Feiertage/Ferien")->setPathComponent("holidays");
-    menu_->addItem("Benutzerverwaltung")->setPathComponent("users");
+    if(session_.user()->role == UserRole::Admin) {
+      menu_->addItem("Benutzerverwaltung")->setPathComponent("users");
+    }
 
 }
 
@@ -128,7 +131,6 @@ void WtTimeTrack::monthView() {
     Wt::Dbo::Transaction transaction(session_.session_);
     contentStack_->clear();
     contentStack_->addWidget(std::make_unique<PlannerCalendar>( session_ ));
-    transaction.commit();
 
 }
 
@@ -137,7 +139,6 @@ void WtTimeTrack::absencesView() {
     Wt::Dbo::Transaction transaction(session_.session_);
     contentStack_->clear();
     contentStack_->addWidget(std::make_unique<AbsenceList>(session_));
-    transaction.commit();
 
 }
 
@@ -146,7 +147,6 @@ void WtTimeTrack::debitTimeView() {
     Wt::Dbo::Transaction transaction(session_.session_);
     contentStack_->clear();
     contentStack_->addWidget(std::make_unique<DebitTimeList>(session_, session_.user()));
-    transaction.commit();
 
 }
 
@@ -155,7 +155,6 @@ void WtTimeTrack::clockView() {
     Wt::Dbo::Transaction transaction(session_.session_);
     contentStack_->clear();
     contentStack_->addWidget(std::make_unique<ClockView>(session_));
-    transaction.commit();
 
 }
 
@@ -164,7 +163,6 @@ void WtTimeTrack::holidayView() {
     Wt::Dbo::Transaction transaction(session_.session_);
     contentStack_->clear();
     contentStack_->addWidget(std::make_unique<HolidayList>(session_));
-    transaction.commit();
 
 }
 
@@ -173,6 +171,5 @@ void WtTimeTrack::userView() {
     Wt::Dbo::Transaction transaction(session_.session_);
     contentStack_->clear();
     contentStack_->addWidget(std::make_unique<UserList>(session_));
-    transaction.commit();
 
 }

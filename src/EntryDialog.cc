@@ -67,7 +67,6 @@ EntryDialog::EntryDialog(CalendarCellDialog *owner, Session &session, Wt::Dbo::p
         dbo::Transaction transaction(session_.session_);
         auto entries = user->creditTimes.find().where("id == ?").bind(entry.id()).resultList();
         entries.front().remove();
-        transaction.commit();
         owner_->update();
         owner_->cell_->owner_->browseToPreviousMonth();   // update all calendar cells
         owner_->cell_->owner_->browseToNextMonth();
@@ -83,7 +82,6 @@ EntryDialog::EntryDialog(CalendarCellDialog *owner, Session &session, Wt::Dbo::p
         entry.modify()->start = WDateTime(de1->date(), te1->time());
         if(entry->hasClockedOut) entry.modify()->stop = WDateTime(de2->date(), te2->time());
         session_.user().modify()->creditTimes.insert(entry);
-        transaction.commit();
         owner_->update();
         owner_->cell_->owner_->browseToPreviousMonth();   // update all calendar cells
         owner_->cell_->owner_->browseToNextMonth();
@@ -95,7 +93,6 @@ EntryDialog::EntryDialog(CalendarCellDialog *owner, Session &session, Wt::Dbo::p
         dbo::Transaction transaction(session_.session_);
         entry.modify()->start = WDateTime(de1->date(), te1->time());
         if(entry->hasClockedOut) entry.modify()->stop = WDateTime(de2->date(), te2->time());
-        transaction.commit();
         owner_->update();
         owner_->cell_->owner_->browseToPreviousMonth();   // update all calendar cells
         owner_->cell_->owner_->browseToNextMonth();
@@ -106,5 +103,4 @@ EntryDialog::EntryDialog(CalendarCellDialog *owner, Session &session, Wt::Dbo::p
     Wt::WPushButton *cancel = footer()->addWidget(std::make_unique<Wt::WPushButton>("Abbrechen"));
     cancel->clicked().connect(this, [&] {hide();} );
 
-    transaction.commit();
 }

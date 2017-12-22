@@ -67,7 +67,4 @@ void AbsenceList::update() {
        absenceDialog_->show();
     } );
 
-
-    transaction.commit();
-
 }

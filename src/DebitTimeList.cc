@@ -104,8 +104,6 @@ void DebitTimeList::update() {
       } );
     }
 
-    transaction.commit();
-
 }
 
 std::string DebitTimeList::formatNumber(double hours) {

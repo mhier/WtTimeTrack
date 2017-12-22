@@ -48,7 +48,6 @@ HolidayDialog::HolidayDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<H
       del->clicked().connect(this, [=] {
         dbo::Transaction transaction(session_.session_);
         holiday_.remove();
-        transaction.commit();
         owner_->update();
         hide();
       } );
@@ -63,15 +62,12 @@ HolidayDialog::HolidayDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<H
       if(createNew) {   // create new on ok
         session_.session_.add(holiday_);
       }
-      transaction.commit();
       owner_->update();
       hide();
     } );
 
     Wt::WPushButton *cancel = footer()->addWidget(std::make_unique<Wt::WPushButton>("Abbrechen"));
     cancel->clicked().connect(this, [=] {hide();} );
-
-    transaction.commit();
 
 }
 
