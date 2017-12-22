@@ -42,6 +42,7 @@ WtTimeTrack::WtTimeTrack() {
     addWidget(std::move(authWidget));
 
     mainStack_ = new WStackedWidget();
+    mainStack_->setHeight("100vH");
     addWidget(std::unique_ptr<WStackedWidget>(mainStack_));
 
     WApplication::instance()->internalPathChanged().connect(this, &WtTimeTrack::handleInternalPath);

@@ -16,6 +16,7 @@
 
 #include <Wt/WDialog.h>
 #include <Wt/WDateEdit.h>
+#include <Wt/WText.h>
 
 using namespace Wt;
 
@@ -27,6 +28,8 @@ class HolidayDialog : public WDialog {
     Updateable *owner_;
 
     Wt::Dbo::ptr<Holiday> holiday_;
+    Wt::WText *errorMessage;
+
 };
 
 #endif //HOLIDAY_DIALOG_H_

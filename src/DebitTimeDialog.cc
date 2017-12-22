@@ -38,8 +38,8 @@ DebitTimeDialog::DebitTimeDialog(Updateable *owner, Session &session, Wt::Dbo::p
     Dbo::Transaction transaction(session_.session_);
 
     auto grid = contents()->setLayout(std::make_unique<Wt::WGridLayout>());
-    grid->setColumnResizable(0, false, Wt::WLength(10, Wt::LengthUnit::FontEx));
-    grid->setColumnResizable(0, false, Wt::WLength(50, Wt::LengthUnit::FontEx));
+    grid->setColumnStretch(0,0);
+    grid->setColumnStretch(1,1);
 
     grid->addWidget(std::make_unique<Wt::WText>("Gültig ab: "), 0, 0);
     auto validFrom = grid->addWidget(std::make_unique<Wt::WDateEdit>(), 0, 1);

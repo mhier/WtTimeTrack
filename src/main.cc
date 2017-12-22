@@ -24,7 +24,11 @@ std::unique_ptr<WApplication> createApplication(const WEnvironment& env) {
     app->setTitle("Zeiterfassung");
 
     app->root()->addStyleClass("container");
-    app->setTheme(std::make_shared<Wt::WBootstrapTheme>());
+    auto theme = std::make_shared<Wt::WBootstrapTheme>();
+    theme->setVersion(Wt::BootstrapVersion::v3);
+    theme->setResponsive(false);
+    app->setTheme(theme);
+
 
     app->useStyleSheet("WtTimeTrack.css");
 
