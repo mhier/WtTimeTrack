@@ -24,7 +24,7 @@ class Absence {
     Absence() {}
 
     enum class Reason {
-      NotAbsent, Holiday, SpecialLeave, Illness, Unspecified
+      NotAbsent, Holiday, SpecialLeave, Illness, OfficialTrip, Unspecified
     };
 
     static std::string ReasonToString(Reason reason) {
@@ -32,6 +32,7 @@ class Absence {
       if(reason == Reason::Holiday) return "Urlaub";
       if(reason == Reason::SpecialLeave) return "Sonderurlaub";
       if(reason == Reason::Illness) return "Krankheit";
+      if(reason == Reason::OfficialTrip) return "Dienstreise";
       return "Unbekannt";
     }
 
@@ -40,6 +41,7 @@ class Absence {
       if(string == "Urlaub") return Reason::Holiday;
       if(string == "Sonderurlaub") return Reason::SpecialLeave;
       if(string == "Krankheit") return Reason::Illness;
+      if(string == "Dienstreise") return Reason::OfficialTrip;
       return Reason::Unspecified;
     }
 

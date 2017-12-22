@@ -90,17 +90,20 @@ void CalendarCellDialog::update() {
     std::string absenceButtonTitle;
     if(absence->reason != Absence::Reason::NotAbsent) {
       absenceButtonTitle = "Abwesenheit bearbeiten...";
+      Wt::WPushButton *newAbsence = footer()->addWidget(std::make_unique<Wt::WPushButton>(absenceButtonTitle));
+      newAbsence->clicked().connect(this, [=] {
+        absenceDialog_ = std::make_unique<AbsenceDialog>(this, cell_->session_, absence);
+        absenceDialog_->show();
+      } );
     }
     else {
       absenceButtonTitle = "Abwesenheit melden...";
-      absence.modify()->first = cell_->date();
-      absence.modify()->last = cell_->date();
+      Wt::WPushButton *newAbsence = footer()->addWidget(std::make_unique<Wt::WPushButton>(absenceButtonTitle));
+      newAbsence->clicked().connect(this, [=] {
+        absenceDialog_ = std::make_unique<AbsenceDialog>(this, cell_->session_, nullptr, cell_->date());
+        absenceDialog_->show();
+      } );
     }
-    Wt::WPushButton *newAbsence = footer()->addWidget(std::make_unique<Wt::WPushButton>(absenceButtonTitle));
-    newAbsence->clicked().connect(this, [=] {
-       absenceDialog_ = std::make_unique<AbsenceDialog>(this, cell_->session_, absence);
-       absenceDialog_->show();
-    } );
 
     Wt::WPushButton *ok = footer()->addWidget(std::make_unique<Wt::WPushButton>("Schließen"));
     ok->setDefault(true);

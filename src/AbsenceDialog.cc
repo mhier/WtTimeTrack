@@ -16,7 +16,7 @@
 #include <Wt/Dbo/WtSqlTraits.h>
 #include <Wt/WComboBox.h>
 
-AbsenceDialog::AbsenceDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<Absence> absence)
+AbsenceDialog::AbsenceDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<Absence> absence, Wt::WDate newDate)
 : Wt::WDialog("Abwesenheit"), owner_(owner), session_(session), absence_(absence)
 {
     contents()->addStyleClass("form-group");
@@ -25,12 +25,19 @@ AbsenceDialog::AbsenceDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<A
     Dbo::Transaction transaction(session_.session_);
 
     bool createNew = false;
-    if(absence_.get() == nullptr) {     // create new absence (otherwise: edit existing)
+    // create new absence (otherwise: edit existing)
+    if(absence_.get() == nullptr) {
       createNew = true;
       absence_ = std::make_unique<Absence>();
       absence_.modify()->reason = Absence::Reason::Holiday;
-      absence_.modify()->first = WDate::currentDate();
-      absence_.modify()->last = WDate::currentDate();
+      if(newDate.isValid()) {
+        absence_.modify()->first = newDate;
+        absence_.modify()->last = newDate;
+      }
+      else {
+        absence_.modify()->first = WDate::currentDate();
+        absence_.modify()->last = WDate::currentDate();
+      }
     }
 
     auto grid = contents()->setLayout(std::make_unique<Wt::WGridLayout>());
@@ -48,6 +55,7 @@ AbsenceDialog::AbsenceDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<A
     cb->addItem(Absence::ReasonToString(Absence::Reason::Holiday));
     cb->addItem(Absence::ReasonToString(Absence::Reason::SpecialLeave));
     cb->addItem(Absence::ReasonToString(Absence::Reason::Illness));
+    cb->addItem(Absence::ReasonToString(Absence::Reason::OfficialTrip));
     cb->setCurrentIndex(static_cast<int>(absence_.modify()->reason)-1);
 
     errorMessage = grid->addWidget(std::make_unique<Wt::WText>(), 3, 1);
