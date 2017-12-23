@@ -71,7 +71,7 @@
 }
 
 .calendar {
-	margin: 50px auto;
+	margin: 0px auto;
 }
 
 .cell {
@@ -450,4 +450,12 @@ div.contents {
 
 .neutralTime {
   display: inline;
+}
+
+.week-summary {
+  padding-top: 20px;
+}
+
+.month-summary {
+  margin-top: 10px;
 }

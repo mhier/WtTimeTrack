@@ -32,12 +32,14 @@ MonthView::MonthView(Session &session)
     for(int i=0; i<6; ++i) {
       weekSummaryTexts[i] = weekSummary->addWidget( std::make_unique<Wt::WText>(""), 1+i, 0 );
       weekSummaryTexts[i]->setHeight(80);
+      weekSummaryTexts[i]->setStyleClass("week-summary");
       weekSummary->setRowStretch(1+i, 0);
     }
     weekSummary->setRowStretch(0, 1);
     layout->addLayout( std::unique_ptr<Wt::WLayout>(weekSummary), 0, 1 );
 
     monthSummaryText = layout->addWidget( std::make_unique<Wt::WText>(""), 1, 0 );
+    monthSummaryText->setStyleClass("month-summary");
 
 }
 
