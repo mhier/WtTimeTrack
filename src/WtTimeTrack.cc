@@ -16,7 +16,10 @@
 #include <Wt/WHBoxLayout.h>
 #include <Wt/WCalendar.h>
 #include <Wt/WPushButton.h>
+#include <Wt/Auth/Dbo/AuthInfo.h>
+#include <Wt/Auth/Dbo/UserDatabase.h>
 
+#include "Session.h"
 #include "WtTimeTrack.h"
 #include "MonthView.h"
 #include "AbsenceList.h"
@@ -32,14 +35,13 @@ WtTimeTrack::WtTimeTrack() {
     authModel->addPasswordAuth(&Session::passwordAuth());
 
     auto authWidget = std::make_unique<Auth::AuthWidget>(session_.login());
-    auto authWidgetPtr = authWidget.get();
     authWidget->setModel(std::move(authModel));
     authWidget->setRegistrationEnabled(false);
 
     std::unique_ptr<WText> title(std::make_unique<WText>("<h1>Zeiterfassung</h1>"));
     addWidget(std::move(title));
 
-    addWidget(std::move(authWidget));
+    authWidgetPtr = addWidget(std::move(authWidget));
 
     mainStack_ = new WStackedWidget();
     mainStack_->setHeight("100vH");
@@ -62,24 +64,31 @@ void WtTimeTrack::onAuthEvent() {
 }
 
 void WtTimeTrack::handleInternalPath(const std::string &internalPath) {
+    Wt::Dbo::Transaction transaction(session_.session_);
+    contentStack_->clear();
     if(session_.login().loggedIn()) {
       if (internalPath == "/month") {
-        monthView();
+        contentStack_->addWidget(std::make_unique<MonthView>( session_ ));
       }
       else if (internalPath == "/absences") {
-        absencesView();
+        contentStack_->addWidget(std::make_unique<AbsenceList>(session_));
       }
       else if (internalPath == "/clock") {
-        clockView();
+        contentStack_->addWidget(std::make_unique<ClockView>(session_));
       }
       else if (internalPath == "/debitTimes") {
-        debitTimeView();
+        contentStack_->addWidget(std::make_unique<DebitTimeList>(session_, session_.user()));
       }
       else if (internalPath == "/holidays") {
-        holidayView();
+        contentStack_->addWidget(std::make_unique<HolidayList>(session_));
       }
       else if (internalPath == "/users" && session_.user()->role == UserRole::Admin) {
-        userView();
+        contentStack_->addWidget(std::make_unique<UserList>(session_));
+      }
+      else if (internalPath == "/password") {
+        //contentStack_->addWidget(std::make_unique<Wt::Auth::UpdatePasswordWidget>(session_.user(), ));
+        auto authUser = session_.users_->find(session_.user()->authInfos.front());
+        authWidgetPtr->letUpdatePassword(authUser, true);
       }
       else {
         WApplication::instance()->setInternalPath("/clock",  true);
@@ -123,53 +132,6 @@ void WtTimeTrack::createMenu() {
     if(session_.user()->role == UserRole::Admin) {
       menu_->addItem("Benutzerverwaltung")->setPathComponent("users");
     }
-
-}
-
-void WtTimeTrack::monthView() {
-
-    Wt::Dbo::Transaction transaction(session_.session_);
-    contentStack_->clear();
-    contentStack_->addWidget(std::make_unique<MonthView>( session_ ));
-
-}
-
-void WtTimeTrack::absencesView() {
-
-    Wt::Dbo::Transaction transaction(session_.session_);
-    contentStack_->clear();
-    contentStack_->addWidget(std::make_unique<AbsenceList>(session_));
-
-}
-
-void WtTimeTrack::debitTimeView() {
-
-    Wt::Dbo::Transaction transaction(session_.session_);
-    contentStack_->clear();
-    contentStack_->addWidget(std::make_unique<DebitTimeList>(session_, session_.user()));
-
-}
-
-void WtTimeTrack::clockView() {
-
-    Wt::Dbo::Transaction transaction(session_.session_);
-    contentStack_->clear();
-    contentStack_->addWidget(std::make_unique<ClockView>(session_));
-
-}
-
-void WtTimeTrack::holidayView() {
-
-    Wt::Dbo::Transaction transaction(session_.session_);
-    contentStack_->clear();
-    contentStack_->addWidget(std::make_unique<HolidayList>(session_));
-
-}
-
-void WtTimeTrack::userView() {
-
-    Wt::Dbo::Transaction transaction(session_.session_);
-    contentStack_->clear();
-    contentStack_->addWidget(std::make_unique<UserList>(session_));
+    menu_->addItem("Passwort ändern")->setPathComponent("password");
 
 }

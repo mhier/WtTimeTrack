@@ -53,8 +53,6 @@ class Session {
     // update a user (password will not be changed if empty)
     void updateUser(Wt::Dbo::ptr<User> user, std::string email, UserRole role, Wt::WString password);
 
-
-  private:
     std::unique_ptr<UserDatabase> users_;
     Auth::Login login_;
 };

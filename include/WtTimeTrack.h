@@ -34,16 +34,12 @@ class WtTimeTrack : public WContainerWidget {
     WStackedWidget    *mainStack_{nullptr};
     WStackedWidget    *contentStack_{nullptr};
 
+    Wt::Auth::AuthWidget *authWidgetPtr;
+
     Session session_;
 
     void onAuthEvent();
     void createMenu();
-    void monthView();
-    void absencesView();
-    void clockView();
-    void debitTimeView();
-    void holidayView();
-    void userView();
 
     void clockIn();
     void clockOut();
