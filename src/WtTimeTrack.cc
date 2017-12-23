@@ -27,6 +27,7 @@
 #include "ClockView.h"
 #include "HolidayList.h"
 #include "UserList.h"
+#include "YearView.h"
 
 WtTimeTrack::WtTimeTrack() {
     session_.login().changed().connect(this, &WtTimeTrack::onAuthEvent);
@@ -75,6 +76,9 @@ void WtTimeTrack::handleInternalPath(const std::string &internalPath) {
       }
       else if (internalPath == "/clock") {
         contentStack_->addWidget(std::make_unique<ClockView>(session_));
+      }
+      else if (internalPath == "/year") {
+        contentStack_->addWidget(std::make_unique<YearView>(session_, session_.user()));
       }
       else if (internalPath == "/debitTimes") {
         contentStack_->addWidget(std::make_unique<DebitTimeList>(session_, session_.user()));
@@ -126,6 +130,7 @@ void WtTimeTrack::createMenu() {
 
     menu_->addItem("Ein-/Ausstempeln")->setPathComponent("clock");
     menu_->addItem("Monatsansicht")->setPathComponent("month");
+    menu_->addItem("Jahresübersicht")->setPathComponent("year");
     menu_->addItem("Abwesenheit")->setPathComponent("absences");
     menu_->addItem("Arbeitszeiten")->setPathComponent("debitTimes");
     menu_->addItem("Feiertage/Ferien")->setPathComponent("holidays");

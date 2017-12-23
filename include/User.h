@@ -53,13 +53,13 @@ class User {
     dbo::collection< dbo::ptr<DebitTime> > debitTimes;
 
     // obtain a list of DebitTimes taking into account the Absences. Result is ordered by "validFrom"
-    std::list<DebitTime> getDebitTimesWithAbsences() const;
+    std::list<DebitTime> getDebitTimesWithAbsences(bool includeVacation = true) const;
 
     // credit time in seconds for a given range (including both dates)
     int getCreditForRange(const WDate& from, const WDate& until) const;
 
     // debit time in seconds for a given range (including both dates)
-    int getDebitForRange(const WDate& from, const WDate& until) const;
+    int getDebitForRange(const WDate& from, const WDate& until, bool includeVacation = true) const;
 
     // debit time for given date in seconds (more efficient than getDebitTimeForRange() in case of a single day)
     int getDebitTimeForDate(const WDate &date) const;
@@ -72,6 +72,7 @@ class User {
 
     dbo::collection< dbo::ptr<Absence> > absences;
     Wt::Dbo::ptr<Absence> checkAbsence(const WDate& date) const;
+    int countHolidays(const WDate& from, const WDate& until) const;
 
     void clockIn();
     void clockOut();
@@ -92,6 +93,10 @@ class User {
     // count debit time in seconds in the given range assuming the given debitTime for each week day.
     // DebitTime::validFrom is ignored in this function as well as absences!
     static int countDebit(const DebitTime &debitTime, const WDate &from, const WDate &until);
+
+    // count days with non-zero debit time in the given range assuming the given debitTime for each week day.
+    // DebitTime::validFrom is ignored in this function as well as absences!
+    static int countDebitDays(const DebitTime &debitTime, const WDate &from, const WDate &until);
 };
 
 DBO_EXTERN_TEMPLATES ( User );

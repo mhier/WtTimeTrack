@@ -102,6 +102,29 @@ int User::countDebit(const DebitTime &debitTime, const WDate &from, const WDate 
     return std::round(debitHours*3600.);
 }
 
+int User::countDebitDays(const DebitTime &debitTime, const WDate &from, const WDate &until) {
+
+    int nDays = from.daysTo(until)+1;       // if from and until are the same day, we count 1 day...
+    int nFullWeeks = nDays / 7;             // C++ truncates towards 0
+    int nDaysRemainder = nDays % 7;
+    int iFirstDOW = from.dayOfWeek() - 1;   // we count from 0 = Monday
+
+    int debitDays = 0;
+
+    // count hours for full week
+    for(int i=0; i<7; ++i) {
+      if(debitTime.workHoursPerWeekday[i] > 0) debitDays += nFullWeeks;
+    }
+
+    // count hours for remaining days
+    for(int i=iFirstDOW; i<iFirstDOW+nDaysRemainder; ++i) {
+      if(debitTime.workHoursPerWeekday[i] > 0) debitDays++;
+    }
+
+    // return seconds
+    return debitDays;
+}
+
 // internal non-member function for getDebitTimesWithAbsences(): inject absences and/or holidays into a DebitTime list
 template<class DateRangeList>
 void injectAbsences(std::list<DebitTime> &debitList, DateRangeList dateRangeList) {
@@ -132,7 +155,7 @@ void injectAbsences(std::list<DebitTime> &debitList, DateRangeList dateRangeList
     }
 }
 
-std::list<DebitTime> User::getDebitTimesWithAbsences() const {
+std::list<DebitTime> User::getDebitTimesWithAbsences(bool includeVacation) const {
 
     // put the debit times into a std::list
     auto debitCollection = debitTimes.find().orderBy("validFrom").resultList();
@@ -140,7 +163,9 @@ std::list<DebitTime> User::getDebitTimesWithAbsences() const {
     for(auto &debit : debitCollection) debitList.push_back(*debit);
 
     // iterate through absences in reverse order and insert into debitList
-    auto absenceCollection = absences.find().orderBy("first DESC").resultList();
+    auto absenseQuery = absences.find().orderBy("first DESC");
+    if(!includeVacation) absenseQuery.where("reason != ?").bind(Absence::Reason::Holiday);
+    auto absenceCollection = absenseQuery.resultList();
     injectAbsences(debitList, absenceCollection);
 
     // iterate through holidays in reverse order and insert into debitList
@@ -150,8 +175,8 @@ std::list<DebitTime> User::getDebitTimesWithAbsences() const {
     return debitList;
 }
 
-int User::getDebitForRange(const WDate& from, const WDate& until) const {
-    auto list = getDebitTimesWithAbsences();
+int User::getDebitForRange(const WDate& from, const WDate& until, bool includeVacation) const {
+    auto list = getDebitTimesWithAbsences(includeVacation);
     int result = 0;
     WDate validUntil = WDate::currentDate().addYears(100);    // 100 years in future: latest debitTime expires
     for(auto it = list.rbegin(); it != list.rend(); ++it) {
@@ -172,4 +197,16 @@ int User::getBalanceForRange(const WDate& from, const WDate& until) const {
     auto debit = getDebitForRange(from, until);
     auto credit = getCreditForRange(from, until);
     return credit + debit;
+}
+
+int User::countHolidays(const WDate& from, const WDate& until) const {
+    size_t vacationDays = 0;
+    for(WDate date = from; date <= until; date = date.addDays(1)) {
+      auto absence = checkAbsence(date);
+      if(absence->reason == Absence::Reason::Holiday) {
+        int debit = getDebitForRange(date, date, false);
+        if(debit != 0) vacationDays++;
+      }
+    }
+    return vacationDays;
 }
