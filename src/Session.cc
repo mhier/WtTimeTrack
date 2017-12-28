@@ -83,28 +83,27 @@ Session::Session() {
       exit(1);
     }
 
+    std::unique_ptr<Dbo::SqlConnection> theDB;
     if(vm.count("sqlite")) {
       if(!vm.count("sqlite-database")) {
         std::cout << "ERROR: You have to specify the file name for the sqlite data base (sqlite-database option)" << std::endl;
         exit(1);
       }
-      auto theDB = std::make_unique<Dbo::backend::Sqlite3>( WApplication::instance()->appRoot() +
-                                                            vm["sqlite-database"].as<std::string>() );
-      //theDB->setProperty("show-queries", "true");
-      session_.setConnection(std::move(theDB));
+      theDB = std::make_unique<Dbo::backend::Sqlite3>( WApplication::instance()->appRoot() +
+                                                       vm["sqlite-database"].as<std::string>() );
     }
     else {
       if(!vm.count("mysql-database") || !vm.count("mysql-user") || !vm.count("mysql-password") || !vm.count("mysql-host")) {
         std::cout << "ERROR: Missing parameter for the MySQL data base connection." << std::endl;
         exit(1);
       }
-      auto theDB = std::make_unique<Wt::Dbo::backend::MySQL>( vm["mysql-database"].as<std::string>(),
-                                                              vm["mysql-user"].as<std::string>(),
-                                                              vm["mysql-password"].as<std::string>(),
-                                                              vm["mysql-host"].as<std::string>()      );
-      //theDB->setProperty("show-queries", "true");
-      session_.setConnection(std::move(theDB));
+      theDB = std::make_unique<Wt::Dbo::backend::MySQL>( vm["mysql-database"].as<std::string>(),
+                                                         vm["mysql-user"].as<std::string>(),
+                                                         vm["mysql-password"].as<std::string>(),
+                                                         vm["mysql-host"].as<std::string>()      );
     }
+    //theDB->setProperty("show-queries", "true");
+    session_.setConnection(std::move(theDB));
 
 
 
