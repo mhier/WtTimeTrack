@@ -6,3 +6,5 @@ mysql-database=WtTimeTrack
 mysql-user=WtTimeTrack
 mysql-password=changeme
 mysql-host=localhost
+
+#fillTestData=1

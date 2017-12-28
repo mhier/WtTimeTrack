@@ -68,6 +68,7 @@ Session::Session() {
         ("mysql-user", po::value<std::string>(), "MySQL database user name")
         ("mysql-password", po::value<std::string>(), "MySQL database password")
         ("mysql-host", po::value<std::string>(), "MySQL database host")
+        ("fillTestData", "Fill test data to the database for performance testing.")
     ;
 
     po::variables_map vm;
@@ -118,14 +119,10 @@ Session::Session() {
     users_ = std::make_unique<UserDatabase>(session_);
 
     dbo::Transaction transaction(session_);
+    bool initialiseDatabase = false;
     try {
       session_.createTables();
-
-      /*
-      * Add a default admin/admin account
-      */
-      registerUser("admin", "admin@example.com", UserRole::Admin, "admin");
-
+      initialiseDatabase = true;
       log("info") << "Database created";
     }
     catch(std::exception& e) {
@@ -133,10 +130,63 @@ Session::Session() {
       log("info") << "Using existing database";
     }
 
-    // output SQL for creating tables
-    std::ofstream file("createTables.sql");
-    file << session_.tableCreationSql();
-    file.close();
+    if(initialiseDatabase) {
+
+      /*
+      * Add a default admin/admin account
+      */
+      registerUser("admin", "admin@example.com", UserRole::Admin, "admin");
+
+      // output SQL for creating tables
+      std::ofstream file("createTables.sql");
+      file << session_.tableCreationSql();
+      file.close();
+
+      // fill with test data, if requested in config file
+      if(vm.count("fillTestData")) {
+        // create 9 additional users
+        for(int iuser=0; iuser<9; iuser++) {
+          registerUser("test"+std::to_string(iuser), "test@example.com", UserRole::Employee, "test");
+        }
+        // add data for each user (including admin)
+        auto users = session_.find<User>().resultList();
+        for(auto user : users) {
+          // credit time...
+          for(WDate date = WDate(2017,1,1); date != WDate(2018,1,1); date = date.addDays(1)) {
+            // 5 entries per day
+            for(int entry=0; entry<5; ++entry) {
+              Wt::Dbo::ptr<CreditTime> creditTime = std::make_unique<CreditTime>();
+              creditTime.modify()->start = WDateTime(date, WTime(9+2*entry,0));
+              creditTime.modify()->stop = WDateTime(date, WTime(10+2*entry,55));
+              creditTime.modify()->hasClockedOut = true;
+              user.modify()->creditTimes.insert(creditTime);
+            }
+          }
+          // debit time... 1 change every month
+          for(int debitEntry=0; debitEntry<12; ++debitEntry) {
+            Wt::Dbo::ptr<DebitTime> debitTime = std::make_unique<DebitTime>();
+            debitTime.modify()->validFrom = WDate(2017, debitEntry+1, 1);
+            debitTime.modify()->workHoursPerWeekday = {{8,8,8,8,8,0,0}};
+            user.modify()->debitTimes.insert(debitTime);
+          }
+          // Absences... 1 every month
+          for(int vacationEntry=0; vacationEntry<12; ++vacationEntry) {
+            Wt::Dbo::ptr<Absence> absence = std::make_unique<Absence>();
+            absence.modify()->first = WDate(2017, vacationEntry+1, 10);
+            absence.modify()->last = WDate(2017, vacationEntry+1, 15);
+            absence.modify()->reason = Absence::Reason::Holiday;
+            user.modify()->absences.insert(absence);
+          }
+        }
+        // for all users: holidays... 1 every month
+        for(int holidayEntry=0; holidayEntry<12; ++holidayEntry) {
+          Wt::Dbo::ptr<Holiday> holiday = std::make_unique<Holiday>();
+          holiday.modify()->first = WDate(2017, holidayEntry+1, 10);
+          holiday.modify()->last = WDate(2017, holidayEntry+1, 15);
+          session_.add(holiday);
+        }
+      }
+    }
 
     transaction.commit();
 }
