@@ -66,8 +66,8 @@ void WtTimeTrack::onAuthEvent() {
 
 void WtTimeTrack::handleInternalPath(const std::string &internalPath) {
     Wt::Dbo::Transaction transaction(session_.session_);
-    contentStack_->clear();
     if(session_.login().loggedIn()) {
+      contentStack_->clear();
       if (internalPath == "/month") {
         contentStack_->addWidget(std::make_unique<MonthView>( session_ ));
       }
