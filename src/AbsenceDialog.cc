@@ -68,6 +68,7 @@ AbsenceDialog::AbsenceDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<A
       del->clicked().connect(this, [=] {
         dbo::Transaction transaction(session_.session_);
         absence_.remove();
+        session_.user()->invalidateCaches();
         owner_->update();
         hide();
       } );
@@ -120,6 +121,7 @@ AbsenceDialog::AbsenceDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<A
       absence_.modify()->last = de2->date();
       absence_.modify()->reason = Absence::StringToReason(cb->currentText());
       if(createNew) session_.user().modify()->absences.insert(absence_);
+      session_.user()->invalidateCaches();
       owner_->update();
       hide();
     } );

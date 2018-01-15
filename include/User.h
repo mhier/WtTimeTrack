@@ -37,7 +37,7 @@ enum class UserRole {
 
 class User {
   public:
-    User() {}
+    User() { invalidateCaches(); }
     virtual ~User() {}
 
     std::string name; /* a copy of auth info's user name */
@@ -88,6 +88,12 @@ class User {
       dbo::hasMany ( a, absences, dbo::ManyToOne, "absences" );
     }
 
+    void invalidateCaches() const {
+      static const WDateTime invalidTime(WDateTime::currentDateTime().addDays(-1));
+      age_debitTimesWithAbsencesInclAbsences = invalidTime;
+      age_debitTimesWithAbsencesExclAbsences = invalidTime;
+    }
+
   private:
 
     // count debit time in seconds in the given range assuming the given debitTime for each week day.
@@ -97,6 +103,12 @@ class User {
     // count days with non-zero debit time in the given range assuming the given debitTime for each week day.
     // DebitTime::validFrom is ignored in this function as well as absences!
     static int countDebitDays(const DebitTime &debitTime, const WDate &from, const WDate &until);
+
+    // caches for getDebitTimesWithAbsences()
+    mutable WDateTime age_debitTimesWithAbsencesInclAbsences;
+    mutable std::list<DebitTime> cache_debitTimesWithAbsencesInclAbsences;
+    mutable WDateTime age_debitTimesWithAbsencesExclAbsences;
+    mutable std::list<DebitTime> cache_debitTimesWithAbsencesExclAbsences;
 };
 
 DBO_EXTERN_TEMPLATES ( User );

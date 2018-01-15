@@ -157,6 +157,18 @@ void injectAbsences(std::list<DebitTime> &debitList, DateRangeList dateRangeList
 
 std::list<DebitTime> User::getDebitTimesWithAbsences(bool includeVacation) const {
 
+    // check cache
+    if(includeVacation) {
+      if(age_debitTimesWithAbsencesInclAbsences.secsTo(WDateTime::currentDateTime()) < 5) {
+        return cache_debitTimesWithAbsencesInclAbsences;
+      }
+    }
+    else {
+      if(age_debitTimesWithAbsencesExclAbsences.secsTo(WDateTime::currentDateTime()) < 5) {
+        return cache_debitTimesWithAbsencesExclAbsences;
+      }
+    }
+
     // put the debit times into a std::list
     auto debitCollection = debitTimes.find().orderBy("validFrom").resultList();
     std::list<DebitTime> debitList;
@@ -171,6 +183,16 @@ std::list<DebitTime> User::getDebitTimesWithAbsences(bool includeVacation) const
     // iterate through holidays in reverse order and insert into debitList
     auto holidayCollection = absences.session()->find<Holiday>().orderBy("first DESC").resultList();
     injectAbsences(debitList, holidayCollection);
+
+    // store in cache
+    if(includeVacation) {
+      cache_debitTimesWithAbsencesInclAbsences = debitList;
+      age_debitTimesWithAbsencesInclAbsences = WDateTime::currentDateTime();
+    }
+    else {
+      cache_debitTimesWithAbsencesExclAbsences = debitList;
+      age_debitTimesWithAbsencesExclAbsences = WDateTime::currentDateTime();
+    }
 
     return debitList;
 }

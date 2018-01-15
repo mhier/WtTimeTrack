@@ -69,6 +69,7 @@ DebitTimeDialog::DebitTimeDialog(Updateable *owner, Session &session, Wt::Dbo::p
         dbo::Transaction transaction(session_.session_);
         debitTime_.remove();
         owner_->update();
+        user->invalidateCaches();
         hide();
       } );
     }
@@ -105,6 +106,7 @@ DebitTimeDialog::DebitTimeDialog(Updateable *owner, Session &session, Wt::Dbo::p
       for(size_t i=0; i<7; ++i) debitTime_.modify()->workHoursPerWeekday[i] = workHoursPerWeekday[i]->value();
       if(createNew) forUser_.modify()->debitTimes.insert(debitTime_);
       owner_->update();
+      user->invalidateCaches();
       hide();
     } );
 
