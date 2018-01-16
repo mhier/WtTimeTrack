@@ -107,7 +107,7 @@ void DebitTimeList::update() {
 }
 
 std::string DebitTimeList::formatNumber(double hours) {
-    std::ostringstream oss;
-    oss << std::setprecision(2) << std::noshowpoint << hours;
-    return oss.str();
+    char buffer[6];
+    sprintf(buffer, "%5.2f", hours);
+    return buffer;
 }
