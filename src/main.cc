@@ -8,15 +8,19 @@
  */
 
 #include <unistd.h>
+#include <Wt/Date/tz.h>
 
 #include <Wt/WApplication.h>
 #include <Wt/WServer.h>
 #include <Wt/WBootstrapTheme.h>
+#include <Wt/WLocale.h>
 
 #include "WtTimeTrack.h"
 #include "Session.h"
 
 using namespace Wt;
+
+static WLocale theLocale;
 
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env) {
     auto app = std::make_unique<WApplication>(env);
@@ -29,6 +33,10 @@ std::unique_ptr<WApplication> createApplication(const WEnvironment& env) {
     theme->setResponsive(false);
     app->setTheme(theme);
 
+    theLocale = WLocale("de_DE");
+    theLocale.setTimeZone(date::current_zone());
+
+    app->setLocale(theLocale);
 
     app->useStyleSheet("WtTimeTrack.css");
 

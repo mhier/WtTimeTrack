@@ -12,6 +12,7 @@
 #include "CalendarCellDialog.h"
 #include "PlannerCalendar.h"
 
+#include <Wt/WLocalDateTime.h>
 #include <Wt/WTemplate.h>
 #include <Wt/WPushButton.h>
 #include <Wt/WRegExpValidator.h>
@@ -61,9 +62,9 @@ void CalendarCellDialog::update() {
       row++;
 
       table->elementAt(row, 0)->addWidget(std::make_unique<WText>(WString("{1}").arg(row)));
-      table->elementAt(row, 1)->addWidget(std::make_unique<WText>(creditTime->start.toString("HH:mm")));
+      table->elementAt(row, 1)->addWidget(std::make_unique<WText>(creditTime->start.toLocalTime().toString("HH:mm")));
       if(creditTime->hasClockedOut) {
-        table->elementAt(row, 2)->addWidget(std::make_unique<WText>(creditTime->stop.toString("HH:mm")));
+        table->elementAt(row, 2)->addWidget(std::make_unique<WText>(creditTime->stop.toLocalTime().toString("HH:mm")));
       }
       else {
         table->elementAt(row, 2)->addWidget(std::make_unique<WText>("--:--"));

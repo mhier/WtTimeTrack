@@ -14,6 +14,7 @@
 #include "PlannerCalendar.h"
 
 #include <Wt/WPushButton.h>
+#include <Wt/WLocalDateTime.h>
 #include <Wt/WTable.h>
 #include <Wt/WTimeEdit.h>
 #include <Wt/WDateEdit.h>
@@ -42,18 +43,18 @@ EntryDialog::EntryDialog(CalendarCellDialog *owner, Session &session, Wt::Dbo::p
 
     grid->addWidget(std::make_unique<Wt::WText>("Eingang: "), 0, 0);
     auto de1 = grid->addWidget(std::make_unique<Wt::WDateEdit>(), 0, 1);
-    de1->setDate(entry->start.date());
+    de1->setDate(entry->start.toLocalTime().date());
     auto te1 = grid->addWidget(std::make_unique<Wt::WTimeEdit>(), 0, 2);
-    te1->setTime(entry->start.time());
+    te1->setTime(entry->start.toLocalTime().time());
 
     grid->addWidget(std::make_unique<Wt::WText>("Ausgang: "), 1, 0);
     Wt::WDateEdit *de2{nullptr};
     Wt::WTimeEdit *te2{nullptr};
     if(entry->hasClockedOut) {
       de2 = grid->addWidget(std::make_unique<Wt::WDateEdit>(), 1, 1);
-      de2->setDate(entry->stop.date());
+      de2->setDate(entry->stop.toLocalTime().date());
       te2 = grid->addWidget(std::make_unique<Wt::WTimeEdit>(), 1, 2);
-      te2->setTime(entry->stop.time());
+      te2->setTime(entry->stop.toLocalTime().time());
     }
     else {
       grid->addWidget(std::make_unique<Wt::WText>("(nicht ausgestempelt)"), 1, 1);
@@ -79,8 +80,8 @@ EntryDialog::EntryDialog(CalendarCellDialog *owner, Session &session, Wt::Dbo::p
     if(createNew) {   // create new on ok
       ok->clicked().connect(this, [=] {
         dbo::Transaction transaction(session_.session_);
-        entry.modify()->start = WDateTime(de1->date(), te1->time());
-        if(entry->hasClockedOut) entry.modify()->stop = WDateTime(de2->date(), te2->time());
+        entry.modify()->start = WLocalDateTime(de1->date(), te1->time()).toUTC();
+        if(entry->hasClockedOut) entry.modify()->stop = WLocalDateTime(de2->date(), te2->time()).toUTC();
         session_.user().modify()->creditTimes.insert(entry);
         owner_->update();
         owner_->cell_->owner_->browseToPreviousMonth();   // update all calendar cells
@@ -91,8 +92,8 @@ EntryDialog::EntryDialog(CalendarCellDialog *owner, Session &session, Wt::Dbo::p
     else {
       ok->clicked().connect(this, [=] {
         dbo::Transaction transaction(session_.session_);
-        entry.modify()->start = WDateTime(de1->date(), te1->time());
-        if(entry->hasClockedOut) entry.modify()->stop = WDateTime(de2->date(), te2->time());
+        entry.modify()->start = WLocalDateTime(de1->date(), te1->time()).toUTC();
+        if(entry->hasClockedOut) entry.modify()->stop = WLocalDateTime(de2->date(), te2->time()).toUTC();
         owner_->update();
         owner_->cell_->owner_->browseToPreviousMonth();   // update all calendar cells
         owner_->cell_->owner_->browseToNextMonth();
