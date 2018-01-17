@@ -66,7 +66,7 @@ EntryDialog::EntryDialog(CalendarCellDialog *owner, Session &session, Wt::Dbo::p
       Wt::WPushButton *del = footer()->addWidget(std::make_unique<Wt::WPushButton>("Löschen"));
       del->clicked().connect(this, [=] {
         dbo::Transaction transaction(session_.session_);
-        auto entries = user->creditTimes.find().where("id == ?").bind(entry.id()).resultList();
+        auto entries = user->creditTimes.find().where("id = ?").bind(entry.id()).resultList();
         entries.front().remove();
         owner_->update();
         owner_->cell_->owner_->browseToPreviousMonth();   // update all calendar cells
