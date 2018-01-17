@@ -91,29 +91,20 @@ AbsenceDialog::AbsenceDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<A
         errorMessage->show();
         return;
       }
-      if(createNew || absence_->first != de1->date()) {
-        if(!user->absences.find().where("first <= ?").bind(de1->date())
-                                 .where("last >= ?").bind(de1->date()).resultList().empty()) {
-          errorMessage->setText("Fehler: Der Anfang der Abwesenheit überlappt mit einer anderen Abwesenheit!");
-          errorMessage->show();
-          return;
-        }
+
+      auto temp1 = user->absences.find().where("first <= ?").bind(de1->date())
+                                        .where("last >= ?").bind(de1->date()).resultList();
+      if(!temp1.empty() && temp1.front().id() != absence_.id()) {
+        errorMessage->setText("Fehler: Die Abwesenheit überlappt mit einer anderen Abwesenheit!");
+        errorMessage->show();
+        return;
       }
-      if(createNew || absence_->last != de2->date()) {
-        if(!user->absences.find().where("first <= ?").bind(de2->date())
-                                 .where("last >= ?").bind(de2->date()).resultList().empty()) {
-          errorMessage->setText("Fehler: Das Ende der Abwesenheit überlappt mit einer anderen Abwesenheit!");
-          errorMessage->show();
-          return;
-        }
-      }
-      if(createNew || absence_->last != de1->date() || absence_->last != de2->date()) {
-        if(!user->absences.find().where("first >= ?").bind(de1->date())
-                                 .where("first <= ?").bind(de2->date()).resultList().empty()) {
-          errorMessage->setText("Fehler: Die Abwesenheit überlappt mit einer anderen Abwesenheit!");
-          errorMessage->show();
-          return;
-        }
+      auto temp2 = user->absences.find().where("first >= ?").bind(de1->date())
+                                        .where("first <= ?").bind(de2->date()).resultList();
+      if(!temp2.empty() && temp2.front().id() != absence_.id()) {
+        errorMessage->setText("Fehler: Die Abwesenheit überlappt mit einer anderen Abwesenheit!");
+        errorMessage->show();
+        return;
       }
 
       // apply modifications
