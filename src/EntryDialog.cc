@@ -62,7 +62,7 @@ EntryDialog::EntryDialog(CalendarCellDialog *owner, Session &session, Wt::Dbo::p
 
     contents()->setWidth(600);
 
-    if(!createNew) {   // existing entry might be deleted
+    if(!createNew) {   // existing entries can be deleted
       Wt::WPushButton *del = footer()->addWidget(std::make_unique<Wt::WPushButton>("Löschen"));
       del->clicked().connect(this, [=] {
         dbo::Transaction transaction(session_.session_);
@@ -77,29 +77,16 @@ EntryDialog::EntryDialog(CalendarCellDialog *owner, Session &session, Wt::Dbo::p
 
     Wt::WPushButton *ok = footer()->addWidget(std::make_unique<Wt::WPushButton>("Ok"));
     ok->setDefault(true);
-    if(createNew) {   // create new on ok
-      ok->clicked().connect(this, [=] {
-        dbo::Transaction transaction(session_.session_);
-        entry.modify()->start = WLocalDateTime(de1->date(), te1->time()).toUTC();
-        if(entry->hasClockedOut) entry.modify()->stop = WLocalDateTime(de2->date(), te2->time()).toUTC();
-        session_.user().modify()->creditTimes.insert(entry);
-        owner_->update();
-        owner_->cell_->owner_->browseToPreviousMonth();   // update all calendar cells
-        owner_->cell_->owner_->browseToNextMonth();
-        hide();
-      } );
-    }
-    else {
-      ok->clicked().connect(this, [=] {
-        dbo::Transaction transaction(session_.session_);
-        entry.modify()->start = WLocalDateTime(de1->date(), te1->time()).toUTC();
-        if(entry->hasClockedOut) entry.modify()->stop = WLocalDateTime(de2->date(), te2->time()).toUTC();
-        owner_->update();
-        owner_->cell_->owner_->browseToPreviousMonth();   // update all calendar cells
-        owner_->cell_->owner_->browseToNextMonth();
-        hide();
-      } );
-    }
+    ok->clicked().connect(this, [=] {
+      dbo::Transaction transaction(session_.session_);
+      entry.modify()->start = WLocalDateTime(de1->date(), te1->time()).toUTC();
+      if(entry->hasClockedOut) entry.modify()->stop = WLocalDateTime(de2->date(), te2->time()).toUTC();
+      if(createNew) session_.user().modify()->creditTimes.insert(entry);
+      owner_->update();
+      owner_->cell_->owner_->browseToPreviousMonth();   // update all calendar cells
+      owner_->cell_->owner_->browseToNextMonth();
+      hide();
+    } );
 
     Wt::WPushButton *cancel = footer()->addWidget(std::make_unique<Wt::WPushButton>("Abbrechen"));
     cancel->clicked().connect(this, [&] {hide();} );
