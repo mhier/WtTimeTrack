@@ -20,12 +20,14 @@ using namespace Wt;
 class CalendarCellDialog;
 
 class EntryDialog : public WDialog {
- public:
-  EntryDialog(CalendarCellDialog *owner, Session &session, Wt::Dbo::ptr<CreditTime> entry);
+  public:
+    EntryDialog(CalendarCellDialog *owner, Session &session, Wt::Dbo::ptr<CreditTime> entry);
 
-  Session &session_;
-  CalendarCellDialog *owner_;
-  Wt::Dbo::ptr<CreditTime> entry_;
+    Session &session_;
+    CalendarCellDialog *owner_;
+    Wt::Dbo::ptr<CreditTime> entry_;
+
+    Wt::WText *errorMessage;
 };
 
 #endif //ENTRY_DIALOG_H_
