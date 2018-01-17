@@ -22,7 +22,7 @@ using namespace Wt;
 
 class AbsenceList : public WContainerWidget, public Updateable {
   public:
-    AbsenceList(Session &session);
+    AbsenceList(Session &session,  Wt::Dbo::ptr<User> forUser);
 
     void update() override;
 

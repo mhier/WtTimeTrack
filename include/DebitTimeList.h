@@ -33,8 +33,6 @@ class DebitTimeList : public WContainerWidget, public Updateable {
 
     static std::string formatNumber(double hours);
 
-    Wt::Dbo::ptr<User> forUser_;
-
   private:
     Session &session_;
     std::unique_ptr<DebitTimeDialog> debitTimeDialog_;

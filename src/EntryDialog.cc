@@ -28,7 +28,7 @@ EntryDialog::EntryDialog(CalendarCellDialog *owner, Session &session, Wt::Dbo::p
     contents()->addStyleClass("form-group");
 
     dbo::Transaction transaction(session_.session_);
-    auto user = session_.user();
+    auto user = owner_->forUser_;
 
     bool createNew = false;
     if(entry.get() == nullptr) {
@@ -123,7 +123,7 @@ EntryDialog::EntryDialog(CalendarCellDialog *owner, Session &session, Wt::Dbo::p
 
       entry.modify()->start = dt1;
       if(entry->hasClockedOut) entry.modify()->stop = dt2;
-      if(createNew) session_.user().modify()->creditTimes.insert(entry);
+      if(createNew) owner_->forUser_.modify()->creditTimes.insert(entry);
       owner_->update();
       owner_->cell_->owner_->browseToPreviousMonth();   // update all calendar cells
       owner_->cell_->owner_->browseToNextMonth();

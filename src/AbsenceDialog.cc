@@ -21,7 +21,7 @@ AbsenceDialog::AbsenceDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<A
 {
     contents()->addStyleClass("form-group");
 
-    auto user = session_.user();
+    auto user = owner_->forUser_;
     Dbo::Transaction transaction(session_.session_);
 
     bool createNew = false;
@@ -68,7 +68,7 @@ AbsenceDialog::AbsenceDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<A
       del->clicked().connect(this, [=] {
         dbo::Transaction transaction(session_.session_);
         absence_.remove();
-        session_.user()->invalidateCaches();
+        owner_->forUser_->invalidateCaches();
         owner_->update();
         hide();
       } );
@@ -92,27 +92,29 @@ AbsenceDialog::AbsenceDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<A
         return;
       }
 
-      auto temp1 = user->absences.find().where("first <= ?").bind(de1->date())
-                                        .where("last >= ?").bind(de1->date()).resultList();
-      if(!temp1.empty() && temp1.front().id() != absence_.id()) {
-        errorMessage->setText("Fehler: Die Abwesenheit überlappt mit einer anderen Abwesenheit!");
-        errorMessage->show();
-        return;
-      }
-      auto temp2 = user->absences.find().where("first >= ?").bind(de1->date())
-                                        .where("first <= ?").bind(de2->date()).resultList();
-      if(!temp2.empty() && temp2.front().id() != absence_.id()) {
-        errorMessage->setText("Fehler: Die Abwesenheit überlappt mit einer anderen Abwesenheit!");
-        errorMessage->show();
-        return;
+      { // make sure temporary query results are gone before calling owner_->update()
+        auto temp1 = owner_->forUser_->absences.find().where("first <= ?").bind(de1->date())
+                                          .where("last >= ?").bind(de1->date()).resultList();
+        if(!temp1.empty() && temp1.front().id() != absence_.id()) {
+          errorMessage->setText("Fehler: Die Abwesenheit überlappt mit einer anderen Abwesenheit!");
+          errorMessage->show();
+          return;
+        }
+        auto temp2 = owner_->forUser_->absences.find().where("first >= ?").bind(de1->date())
+                                          .where("first <= ?").bind(de2->date()).resultList();
+        if(!temp2.empty() && temp2.front().id() != absence_.id()) {
+          errorMessage->setText("Fehler: Die Abwesenheit überlappt mit einer anderen Abwesenheit!");
+          errorMessage->show();
+          return;
+        }
       }
 
       // apply modifications
       absence_.modify()->first = de1->date();
       absence_.modify()->last = de2->date();
       absence_.modify()->reason = Absence::StringToReason(cb->currentText());
-      if(createNew) session_.user().modify()->absences.insert(absence_);
-      session_.user()->invalidateCaches();
+      if(createNew) owner_->forUser_.modify()->absences.insert(absence_);
+      owner_->forUser_->invalidateCaches();
       owner_->update();
       hide();
     } );

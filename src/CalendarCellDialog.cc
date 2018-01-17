@@ -20,8 +20,8 @@
 
 #include <Wt/Dbo/WtSqlTraits.h>
 
-CalendarCellDialog::CalendarCellDialog(CalendarCell* cell)
-: WDialog(cell->date().toString("ddd, d MMM yyyy")), cell_(cell)
+CalendarCellDialog::CalendarCellDialog(CalendarCell* cell, Wt::Dbo::ptr<User> forUser)
+: WDialog(cell->date().toString("ddd, d MMM yyyy")), Updateable(forUser), cell_(cell)
 {
     update();
 }
@@ -32,9 +32,8 @@ void CalendarCellDialog::update() {
     contents()->addStyleClass("form-group");
 
     dbo::Transaction transaction(cell_->session_.session_);
-    auto user = cell_->session_.user();
 
-    auto absence = user->checkAbsence(cell_->date());
+    auto absence = forUser_->checkAbsence(cell_->date());
     if(absence->reason != Absence::Reason::NotAbsent) {
       std::string text = Absence::ReasonToString(absence->reason);
       text += ": ";
@@ -56,7 +55,7 @@ void CalendarCellDialog::update() {
     table->elementAt(0, 2)->addWidget(std::make_unique<WText>("Ausgang"));
     table->elementAt(0, 3)->addWidget(std::make_unique<WText>("Stunden"));
 
-    auto creditTimes = user->creditTimesInRange(cell_->date(), cell_->date().addDays(1));
+    auto creditTimes = forUser_->creditTimesInRange(cell_->date(), cell_->date().addDays(1));
     int row = 0;
     for(auto creditTime : creditTimes) {
       row++;

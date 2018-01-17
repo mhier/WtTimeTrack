@@ -24,7 +24,7 @@ std::array<std::string, 7> const DebitTimeList::dayOfWeekNames{{"Mo", "Di", "Mi"
                                                                 "Sa", "So"}};
 
 DebitTimeList::DebitTimeList(Session &session, Wt::Dbo::ptr<User> forUser)
-: session_(session), forUser_(forUser)
+: session_(session), Updateable(forUser)
 {
     update();
 }

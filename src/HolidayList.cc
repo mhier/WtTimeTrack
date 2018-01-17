@@ -17,7 +17,7 @@
 #include <Wt/WPushButton.h>
 
 HolidayList::HolidayList(Session &session)
-: session_(session)
+: session_(session), Updateable(nullptr)
 {
     update();
 }

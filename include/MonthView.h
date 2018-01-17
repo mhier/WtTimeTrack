@@ -12,20 +12,24 @@
 
 #include "User.h"
 #include "Session.h"
+#include "Updateable.h"
 
 #include <Wt/Dbo/Dbo.h>
 #include <Wt/WContainerWidget.h>
 
 using namespace Wt;
 
-class MonthView : public WContainerWidget {
+class MonthView : public WContainerWidget, public Updateable {
   public:
-    MonthView(Session &session);
+    MonthView(Session &session, Wt::Dbo::ptr<User> forUser);
 
     Session &session_;
 
+    void update() override;
+
     Wt::WText *weekSummaryTexts[6];
     Wt::WText *monthSummaryText;
+
 };
 
 #endif //MONTH_VIEW_H_

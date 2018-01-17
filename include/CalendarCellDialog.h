@@ -25,7 +25,7 @@ using namespace Wt;
 
 class CalendarCellDialog : public WDialog, public Updateable {
   public:
-    CalendarCellDialog(CalendarCell* cell);
+    CalendarCellDialog(CalendarCell* cell, Wt::Dbo::ptr<User> forUser);
 
     void update() override;
 

@@ -10,13 +10,20 @@
 #ifndef UPDATEABLE_H_
 #define UPDATEABLE_H_
 
+#include "User.h"
+
 class Updateable {
 
   public:
 
+    Updateable(Wt::Dbo::ptr<User> forUser)
+    : forUser_(forUser) {}
+
     virtual ~Updateable() {}
 
     virtual void update() = 0;
+
+    Wt::Dbo::ptr<User> forUser_;
 
 };
 

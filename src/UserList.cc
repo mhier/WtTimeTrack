@@ -20,7 +20,7 @@
 #include <Wt/Auth/AbstractUserDatabase.h>
 
 UserList::UserList(Session &session)
-: session_(session)
+: session_(session), Updateable(nullptr)
 {
     update();
 }

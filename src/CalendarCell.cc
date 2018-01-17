@@ -35,7 +35,7 @@ void CalendarCell::update(const WDate& date) {
     clear();
 
     dbo::Transaction transaction(session_.session_);
-    auto user = session_.user();
+    auto user = owner_->view_.forUser_;
 
     // compute row in calendar and store if this is the first cell
     bool firstCell = false;
@@ -97,6 +97,6 @@ void CalendarCell::update(const WDate& date) {
 }
 
 void CalendarCell::showCellDialog() {
-    dialog_ = std::make_unique<CalendarCellDialog>(this);
+    dialog_ = std::make_unique<CalendarCellDialog>(this, owner_->view_.forUser_);
     dialog_->show();
 }

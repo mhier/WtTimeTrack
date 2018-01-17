@@ -69,25 +69,25 @@ void WtTimeTrack::handleInternalPath(const std::string &internalPath) {
     if(session_.login().loggedIn()) {
       contentStack_->clear();
       if (internalPath == "/month") {
-        contentStack_->addWidget(std::make_unique<MonthView>( session_ ));
+        contentStack_->addWidget( std::make_unique<MonthView>(session_, session_.user()) );
       }
       else if (internalPath == "/absences") {
-        contentStack_->addWidget(std::make_unique<AbsenceList>(session_));
+        contentStack_->addWidget (std::make_unique<AbsenceList>(session_, session_.user()) );
       }
       else if (internalPath == "/clock") {
-        contentStack_->addWidget(std::make_unique<ClockView>(session_));
+        contentStack_->addWidget( std::make_unique<ClockView>(session_) );
       }
       else if (internalPath == "/year") {
-        contentStack_->addWidget(std::make_unique<YearView>(session_, session_.user()));
+        contentStack_->addWidget( std::make_unique<YearView>(session_, session_.user()) );
       }
       else if (internalPath == "/debitTimes") {
-        contentStack_->addWidget(std::make_unique<DebitTimeList>(session_, session_.user()));
+        contentStack_->addWidget( std::make_unique<DebitTimeList>(session_, session_.user()) );
       }
       else if (internalPath == "/holidays") {
-        contentStack_->addWidget(std::make_unique<HolidayList>(session_));
+        contentStack_->addWidget( std::make_unique<HolidayList>(session_) );
       }
       else if (internalPath == "/users" && session_.user()->role == UserRole::Admin) {
-        contentStack_->addWidget(std::make_unique<UserList>(session_));
+        contentStack_->addWidget( std::make_unique<UserList>(session_) );
       }
       else if (internalPath == "/password") {
         //contentStack_->addWidget(std::make_unique<Wt::Auth::UpdatePasswordWidget>(session_.user(), ));
