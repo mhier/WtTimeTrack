@@ -84,24 +84,26 @@ EntryDialog::EntryDialog(CalendarCellDialog *owner, Session &session, Wt::Dbo::p
       dbo::Transaction transaction(session_.session_);
 
       // check if edit is valid
-      if(!de1->date().isValid() || !de2->date().isValid()) {
-        errorMessage->setText("Fehler: Erster und letzter Buchungstag muss angegeben werden!");
+      if(!de1->date().isValid() || !te1->time().isValid()) {
+        errorMessage->setText("Fehler: Das erste Buchungsdatum muss vollständig angegeben werden!");
         errorMessage->show();
         return;
       }
-      if(!de1->date().isValid() || !de2->date().isValid()) {
-        errorMessage->setText("Fehler: Erster und letzter Buchungstag muss angegeben werden!");
-        errorMessage->show();
-        return;
-      }
+      Wt::WDateTime dt1 = WLocalDateTime(de1->date(), te1->time()).toUTC();
+      Wt::WDateTime dt2;
+      if(entry->hasClockedOut) {
+        if(!de2->date().isValid() || !te2->time().isValid()) {
+          errorMessage->setText("Fehler: Der letzte Buchungsdatum muss vollständig angegeben werden!");
+          errorMessage->show();
+          return;
+        }
+        dt2 = WLocalDateTime(de2->date(), te2->time()).toUTC();
 
-      auto dt1 = WLocalDateTime(de1->date(), te1->time()).toUTC();
-      auto dt2 = WLocalDateTime(de2->date(), te2->time()).toUTC();
-
-      if(dt1.secsTo(dt2) < 0) {
-        errorMessage->setText("Fehler: Das Ende der Buchung liegt vor dem Anfang!");
-        errorMessage->show();
-        return;
+        if(dt1.secsTo(dt2) < 0) {
+          errorMessage->setText("Fehler: Das Ende der Buchung liegt vor dem Anfang!");
+          errorMessage->show();
+          return;
+        }
       }
 
       { // make sure the temporary Dbo::collections get destroyed before owner_->update() is called
