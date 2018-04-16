@@ -452,6 +452,11 @@ div.contents {
   display: inline;
 }
 
+.paused .positiveTime {
+  color: grey;
+  display: inline
+}
+
 .week-summary {
   padding-top: 20px;
 }

@@ -20,7 +20,7 @@ ClockView::ClockView(Session &session)
 : session_(session)
 {
     update();
-    timer.setInterval(std::chrono::milliseconds(1000));
+    timer.setInterval(std::chrono::milliseconds(60000));
     timer.timeout().connect(this, [=] { update(); });
     timer.start();
 }
@@ -68,8 +68,14 @@ void ClockView::update(bool fullUpdate) {
     auto debit = user->getDebitTimeForDate(WDate::currentDate());
     auto credit = user->getCreditForRange(WDate::currentDate(), WDate::currentDate());
 
-    todayText->setText("<p class=\"creditText\">"+secondsToString(credit, true)+"</p>"+
-                       "<p class=\"debitText\">Soll: "+secondsToString(debit)+"</p>");
+    if(session_.user()->currentCreditTime().empty()) {
+      todayText->setText("<p class=\"creditText paused\">"+secondsToString(credit, false)+"</p>"+
+                        "<p class=\"debitText\">Soll: "+secondsToString(debit)+"</p>");
+    }
+    else {
+      todayText->setText("<p class=\"creditText running\">"+secondsToString(credit, false)+"</p>"+
+                        "<p class=\"debitText\">Soll: "+secondsToString(debit)+"</p>");
+    }
     todayText->setTextFormat(Wt::TextFormat::XHTML);
 
     if(fullUpdate) {
