@@ -55,6 +55,7 @@ UserDialog::UserDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<User> u
       editLogin->setDisabled(true);
       editLogin->setText(user_->authInfos.front()->identity(Wt::Auth::Identity::LoginName));
       editEmail->setText(user_->authInfos.front()->email());
+      editRole->setCurrentIndex(static_cast<int>(user_->role));
     }
 
     contents()->setWidth(600);
