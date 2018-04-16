@@ -1,23 +1,21 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-PROJECT(WTtest)
+cmake_minimum_required(VERSION 2.6)
+project(WtTimeTrack)
 
-SET(WT_CONNECTOR "wthttp" CACHE STRING "Connector used (wthttp or wtfcgi)")
+set(WT_CONNECTOR "Wt::HTTP" CACHE STRING "Connector used (Wt::HTTP or Wt::FCGI)")
 
-aux_source_directory(${CMAKE_SOURCE_DIR}/src WTtest_SOURCE)
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
+set(WtTimeTrack_TARGET wt_project.wt)
 
-SET(WTtest_TARGET wt_project.wt)
+find_package(Boost REQUIRED COMPONENTS program_options signals system filesystem thread)
+find_package(wt REQUIRED COMPONENTS http fcgi dbo dbosqlite3 dbomysql)
 
-find_package(Boost REQUIRED COMPONENTS program_options signals system)
-
-INCLUDE_DIRECTORIES(/home/mhier/compile/wt-4.0.2/install/include)
-LINK_DIRECTORIES(/home/mhier/compile/wt-4.0.2/install/lib)
-
-ADD_CUSTOM_TARGET(link_target ALL
+add_custom_target(link_target ALL
                   COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/Wt/resources ${CMAKE_BINARY_DIR}/resources)
 
-CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/wt_project ${CMAKE_BINARY_DIR}/wt_project COPYONLY)
-CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/WtTimeTrack.css ${CMAKE_BINARY_DIR}/WtTimeTrack.css COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/wt_project ${CMAKE_BINARY_DIR}/wt_project COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/WtTimeTrack.css ${CMAKE_BINARY_DIR}/WtTimeTrack.css COPYONLY)
 
-ADD_EXECUTABLE(${WTtest_TARGET} ${WTtest_SOURCE})
-TARGET_LINK_LIBRARIES(${WTtest_TARGET} ${WT_CONNECTOR} wt wtdbo wtdbosqlite3 wtdbomysql ${Boost_LIBRARIES})
+aux_source_directory(${CMAKE_SOURCE_DIR}/src WtTimeTrack_SOURCE)
+include_directories(${CMAKE_SOURCE_DIR}/include)
+
+add_executable(${WtTimeTrack_TARGET} ${WtTimeTrack_SOURCE})
+target_link_libraries(${WtTimeTrack_TARGET} ${WT_CONNECTOR} Wt::DboMySQL Wt::DboSqlite3 ${Boost_LIBRARIES})
