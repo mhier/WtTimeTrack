@@ -19,9 +19,13 @@ using namespace Wt::Dbo;
 
 
 collection< ptr<CreditTime> > User::creditTimesInRange(const WDate& from, const WDate& until) const {
-    return creditTimes.find()
-      .where("start >= ?").bind(WDateTime(from))
-      .where("start < ?").bind(WDateTime(until));
+
+    std::string myWhere = "( stop >= ? and stop <= ? and hasClockedOut != 0 )";
+    if(from == WDate::currentDate() && until == WDate::currentDate()) {       // when looking for the current date
+      myWhere += " or (hasClockedOut = 0)";                                   // also include not-clocked-out entry
+    }
+
+    return creditTimes.find().where(myWhere).bind(WDateTime(from)).bind(WDateTime(until.addDays(1)));
 }
 
 collection< ptr<CreditTime> > User::currentCreditTime() const {
@@ -70,8 +74,12 @@ int User::getDebitTimeForDate(const WDate &date) const {
 int User::getCreditForRange(const WDate& from, const WDate& until) const {
     int credit = 0;
 
-    auto res = creditTimes.find().where("start >= ?").bind(from)
-                                 .where("start <= ?").bind(until.addDays(1));
+    std::string myWhere = "( stop >= ? and stop <= ? and hasClockedOut != 0 )";
+    if(from == WDate::currentDate() && until == WDate::currentDate()) {       // when looking for the current date
+      myWhere += " or (hasClockedOut = 0)";                                   // also include not-clocked-out entry
+    }
+
+    auto res = creditTimes.find().where(myWhere).bind(from).bind(until.addDays(1));
     for(auto time : res.resultList()) {
       credit += time->getSecs();
     }

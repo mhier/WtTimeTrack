@@ -55,7 +55,7 @@ void CalendarCellDialog::update() {
     table->elementAt(0, 2)->addWidget(std::make_unique<WText>("Ausgang"));
     table->elementAt(0, 3)->addWidget(std::make_unique<WText>("Stunden"));
 
-    auto creditTimes = forUser_->creditTimesInRange(cell_->date(), cell_->date().addDays(1));
+    auto creditTimes = forUser_->creditTimesInRange(cell_->date(), cell_->date());
     int row = 0;
     for(auto creditTime : creditTimes) {
       row++;
