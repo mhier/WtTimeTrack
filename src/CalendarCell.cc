@@ -37,22 +37,8 @@ void CalendarCell::update(const WDate& date) {
     dbo::Transaction transaction(session_.session_);
     auto user = owner_->view_.forUser_;
 
-    // compute row in calendar and store if this is the first cell
-    bool firstCell = false;
-    if(date.dayOfWeek() == 1) {
-      // If this is a Monday and it belongs to the previous month -> first cell!
-      if( (date.month() < owner_->currentMonth() && date.year() == owner_->currentYear()) ||
-          (date.year()  < owner_->currentYear())                                              ) {
-        owner_->rowCounter = 0;
-        firstCell = true;
-      }
-      else {
-        owner_->rowCounter++;
-      }
-    }
-
     // month summary: only once per month
-    if(firstCell) {
+    if( owner_->rowCounter == 0 && date.dayOfWeek() == 1 ) {
       WDate firstMonthDay = WDate(owner_->currentYear(), owner_->currentMonth(), 1);
       int monthBalance = user->getBalanceForRange( firstMonthDay, firstMonthDay.addMonths(1).addDays(-1) );
       int transfer = user->getBalanceUntil( firstMonthDay.addDays(-1) );
@@ -93,6 +79,8 @@ void CalendarCell::update(const WDate& date) {
       std::string text = "Woche: "+secondsToString(weekBalance)+"<br/>";
       text += "Übertrag: "+secondsToString(transfer);
       owner_->view_.weekSummaryTexts[owner_->rowCounter]->setText(text);
+
+      owner_->rowCounter++;
     }
 }
 

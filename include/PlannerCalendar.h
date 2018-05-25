@@ -23,7 +23,12 @@ class PlannerCalendar : public WCalendar {
   public:
     PlannerCalendar(Session &session, MonthView &view);
 
-    virtual WWidget* renderCell(WWidget* widget, const WDate& date) override;
+    void render(WFlags<RenderFlag> renderFlags) override {
+      rowCounter = 0;
+      WCalendar::render(renderFlags);
+    }
+
+    WWidget* renderCell(WWidget* widget, const WDate& date) override;
 
     Session &session_;
     MonthView &view_;
