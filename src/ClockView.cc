@@ -44,8 +44,10 @@ void ClockView::update(bool fullUpdate) {
       if(session_.user()->currentCreditTime().empty()) {
         auto button = clockInOutPanel->setCentralWidget(std::make_unique<Wt::WPushButton>("Einstempeln"));
         button->clicked().connect(this, [=] {
-          Wt::Dbo::Transaction transaction(session_.session_);
-          session_.user().modify()->clockIn();
+          {
+            Wt::Dbo::Transaction transaction(session_.session_);
+            session_.user().modify()->clockIn();
+          }
           update();
         });
       }
