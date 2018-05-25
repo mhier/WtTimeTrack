@@ -85,14 +85,19 @@ void ClockView::update(bool fullUpdate) {
       weekPanel->setTitle("Diese Woche");
       weekPanel->addStyleClass("panel");
 
-      WDate mon = WDate::currentDate().addDays( -(WDate::currentDate().dayOfWeek()-1) );
-      WDate sun = mon.addDays(6);
+      WDate first = WDate::currentDate().addDays( -(WDate::currentDate().dayOfWeek()-1) );
+      WDate last = first.addDays(6);
+      WDate sun = last;
+      if(last > WDate::currentDate()) last = WDate::currentDate();
 
-      auto debitW = user->getDebitForRange(mon,sun);
-      auto creditW = user->getCreditForRange(mon,sun);
+      auto debitW = user->getDebitForRange(first,last);
+      auto debitWfull = user->getDebitForRange(first,sun);
+      auto creditW = user->getCreditForRange(first,last);
 
       auto weekText = weekPanel->setCentralWidget(
-        std::make_unique<Wt::WText>("<p>Ist: "+secondsToString(creditW)+"</p><p>Soll: "+secondsToString(debitW)+"</p>"));
+        std::make_unique<Wt::WText>("<p>Ist: "+secondsToString(creditW)+"</p>"+
+                                    "<p>Soll: "+secondsToString(debitW)+" (bis heute) / "+
+                                    secondsToString(debitWfull)+" (ganze Woche)</p>"));
       weekText->setTextFormat(Wt::TextFormat::XHTML);
 
       auto monthPanel = layout->addWidget(std::make_unique<Wt::WPanel>(), 3, 0);
@@ -101,11 +106,17 @@ void ClockView::update(bool fullUpdate) {
 
       WDate firstDay = WDate::currentDate().addDays( -(WDate::currentDate().day()-1) );
       WDate lastDay = firstDay.addMonths(1).addDays(-1);
+      WDate endOfMonth = lastDay;
+      if(lastDay > WDate::currentDate()) lastDay = WDate::currentDate();
+
       auto debitM = user->getDebitForRange(firstDay,lastDay);
+      auto debitMfull = user->getDebitForRange(firstDay,endOfMonth);
       auto creditM = user->getCreditForRange(firstDay,lastDay);
 
       auto monthText = monthPanel->setCentralWidget(
-        std::make_unique<Wt::WText>("<p>Ist: "+secondsToString(creditM)+"</p><p>Soll: "+secondsToString(debitM)+"</p>"));
+        std::make_unique<Wt::WText>("<p>Ist: "+secondsToString(creditM)+"</p>"+
+                                    "<p>Soll: "+secondsToString(debitM)+" (bis heute) / "+
+                                    secondsToString(debitMfull)+" (ganzer Monat)</p>"));
       monthText->setTextFormat(Wt::TextFormat::XHTML);
 
     }
