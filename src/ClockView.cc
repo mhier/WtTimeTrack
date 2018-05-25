@@ -86,7 +86,8 @@ void ClockView::update(bool fullUpdate) {
       weekPanel->addStyleClass("panel");
 
       WDate mon = WDate::currentDate().addDays( -(WDate::currentDate().dayOfWeek()-1) );
-      WDate sun = mon.addDays(7);
+      WDate sun = mon.addDays(6);
+
       auto debitW = user->getDebitForRange(mon,sun);
       auto creditW = user->getCreditForRange(mon,sun);
 
