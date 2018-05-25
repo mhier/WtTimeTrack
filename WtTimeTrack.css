@@ -457,6 +457,16 @@ div.contents {
   display: inline
 }
 
+.paused .neutralTime {
+  color: grey;
+  display: inline
+}
+
+.running .neutralTime {
+  color: green;
+  display: inline
+}
+
 .week-summary {
   padding-top: 20px;
 }
