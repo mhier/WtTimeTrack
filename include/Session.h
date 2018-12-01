@@ -55,6 +55,20 @@ class Session {
 
     std::unique_ptr<UserDatabase> users_;
     Auth::Login login_;
+
+    // check if year has been closed already
+    bool isYearClosed(int year) {
+      if(cache_isYearClosed.count(year) == 0) {
+        auto n = session_.find<AnnualStatement>()
+                         .where("referenceDate = ?").bind(std::to_string(year)+"-12-31")
+                         .resultList().size();
+       cache_isYearClosed[year] = n > 0;
+      }
+      return cache_isYearClosed[year];
+    }
+    std::map<int,bool> cache_isYearClosed;
+
+
 };
 
 #endif //SESSION_H_

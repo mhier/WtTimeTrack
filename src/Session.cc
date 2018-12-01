@@ -116,6 +116,7 @@ Session::Session() {
     session_.mapClass<DebitTime>("debitTime");
     session_.mapClass<Absence>("absence");
     session_.mapClass<Holiday>("holiday");
+    session_.mapClass<AnnualStatement>("annualStatement");
     users_ = std::make_unique<UserDatabase>(session_);
 
     dbo::Transaction transaction(session_);

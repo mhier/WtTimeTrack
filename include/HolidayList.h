@@ -29,6 +29,8 @@ class HolidayList : public WContainerWidget, public Updateable {
   private:
     Session &session_;
     std::unique_ptr<HolidayDialog> holidayDialog_;
+
+    int year{0};
 };
 
 #endif //HOLIDAY_LIST_H_

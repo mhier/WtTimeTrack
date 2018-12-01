@@ -29,6 +29,7 @@ class YearView : public WContainerWidget {
     static const std::array<std::string, 12> monthNames;
 
     Wt::Dbo::ptr<User> forUser_;
+    int year{0};
 };
 
 #endif //YEAR_VIEW_H_

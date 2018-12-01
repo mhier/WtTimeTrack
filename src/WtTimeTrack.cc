@@ -122,6 +122,7 @@ void WtTimeTrack::createMenu() {
     menu_->addStyleClass("nav nav-pills nav-stacked");
     menu_->setWidth(200);
 
+
     hLayout->addWidget(std::move(menu));
     hLayout->addWidget(std::move(contentStack),1);
 

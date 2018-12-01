@@ -29,6 +29,7 @@ class AbsenceList : public WContainerWidget, public Updateable {
   private:
     Session &session_;
     std::unique_ptr<AbsenceDialog> absenceDialog_;
+    int year{0};
 };
 
 #endif //ABSENCE_LIST_H_

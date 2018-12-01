@@ -15,6 +15,7 @@
 #include <Wt/WVBoxLayout.h>
 #include <Wt/WDate.h>
 #include <Wt/WPushButton.h>
+#include <Wt/WComboBox.h>
 
 HolidayList::HolidayList(Session &session)
 : session_(session), Updateable(nullptr)
@@ -24,13 +25,25 @@ HolidayList::HolidayList(Session &session)
 
 void HolidayList::update() {
     clear();
-
     auto user = session_.user();
-
     dbo::Transaction transaction(session_.session_);
-
     addWidget(std::make_unique<WText>("<h2>Feiertage und Betriebsferien</h2>"));
 
+    // Jahresauswahl
+    if(year == 0) year = WDate::currentDate().year();
+    addWidget(std::make_unique<Wt::WText>("Jahr wechseln: "));
+    auto selectYear = addWidget(std::make_unique<Wt::WComboBox>());
+    auto dt = session_.session_.find<DebitTime>().orderBy("validFrom").limit(1).resultList().front();
+    int firstYear = dt->validFrom.year();
+    int lastYear = WDate::currentDate().year();
+    for(int i=firstYear; i<=lastYear; ++i) selectYear->addItem(std::to_string(i));
+    selectYear->setCurrentIndex(year-firstYear);
+    selectYear->sactivated().connect([=](WString _year){
+      year = std::stoi(_year);
+      update();
+    });
+
+    //Tabelle mit Feiertagen und Betriebsferien
     auto table = std::make_unique<WTable>();
     table->setHeaderCount(1);
     table->setWidth(WLength("100%"));
@@ -40,7 +53,9 @@ void HolidayList::update() {
     table->elementAt(0, 1)->addWidget(std::make_unique<WText>("Erster Tag"));
     table->elementAt(0, 2)->addWidget(std::make_unique<WText>("Letzter Tag"));
 
-    auto holidays = session_.session_.find<Holiday>().resultList();
+    auto holidays = session_.session_.find<Holiday>().where("last >= ?").bind(std::to_string(year)+"-01-01").
+                                                      where("first <= ?").bind(std::to_string(year)+"-12-31").
+                                                      orderBy("first").resultList();
     int row = 0;
     for(auto holiday : holidays) {
       row++;

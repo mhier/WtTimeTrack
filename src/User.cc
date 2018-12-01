@@ -206,6 +206,7 @@ std::list<DebitTime> User::getDebitTimesWithAbsences(bool includeVacation) const
 }
 
 int User::getDebitForRange(const WDate& from, const WDate& until, bool includeVacation) const {
+    if(from > until) return 0;
     auto list = getDebitTimesWithAbsences(includeVacation);
     int result = 0;
     WDate validUntil = WDate::currentDate().addYears(100);    // 100 years in future: latest debitTime expires
@@ -224,10 +225,31 @@ int User::getDebitForRange(const WDate& from, const WDate& until, bool includeVa
 }
 
 int User::getBalanceForRange(const WDate& from, const WDate& until) const {
+    if(from > until) return 0;
     auto debit = getDebitForRange(from, until);
     auto credit = getCreditForRange(from, until);
     return credit + debit;
 }
+
+int User::getBalanceUntil(const WDate& date, bool useStatementForExactDate) const {
+  if(useStatementForExactDate) {
+    auto statementList = annualStatements.find().where("referenceDate <= ?").bind(date).
+                                                 orderBy("referenceDate DESC").limit(1).
+                                                 resultList();
+    if(statementList.size() == 0) return getBalanceForRange(WDate(1970,1,1), date);
+    auto statement = statementList.front();
+    return getBalanceForRange(statement.get()->referenceDate.addDays(1), date) + statement.get()->balance;
+  }
+  else {
+    auto statementList = annualStatements.find().where("referenceDate < ?").bind(date).
+                                                 orderBy("referenceDate DESC").limit(1).
+                                                 resultList();
+    if(statementList.size() == 0) return getBalanceForRange(WDate(1970,1,1), date);
+    auto statement = statementList.front();
+    return getBalanceForRange(statement.get()->referenceDate, date) + statement.get()->balance;
+  }
+}
+
 
 int User::countHolidays(const WDate& from, const WDate& until) const {
     size_t vacationDays = 0;

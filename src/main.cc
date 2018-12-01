@@ -30,7 +30,7 @@ std::unique_ptr<WApplication> createApplication(const WEnvironment& env) {
     app->root()->addStyleClass("container");
     auto theme = std::make_shared<Wt::WBootstrapTheme>();
     theme->setVersion(Wt::BootstrapVersion::v3);
-    theme->setResponsive(false);
+    theme->setResponsive(true);
     app->setTheme(theme);
 
     theLocale = WLocale("de_DE");

@@ -21,6 +21,7 @@
 #include "CreditTime.h"
 #include "DebitTime.h"
 #include "Absence.h"
+#include "AnnualStatement.h"
 
 using namespace Wt;
 
@@ -66,9 +67,7 @@ class User {
 
     // in seconds. positive: extra hours
     int getBalanceForRange(const WDate& from, const WDate& until) const;
-    int getBalanceUntil(const WDate& date) const {
-      return getBalanceForRange(WDate(1970,1,1), date);
-    }
+    int getBalanceUntil(const WDate& date, bool useStatementForExactDate=true) const;
 
     dbo::collection< dbo::ptr<Absence> > absences;
     Wt::Dbo::ptr<Absence> checkAbsence(const WDate& date) const;
@@ -76,6 +75,8 @@ class User {
 
     void clockIn();
     void clockOut();
+
+    dbo::collection< dbo::ptr<AnnualStatement> > annualStatements;
 
     template<class Action>
     void persist ( Action& a ) {
@@ -86,6 +87,7 @@ class User {
       dbo::hasMany ( a, creditTimes, dbo::ManyToOne, "creditTimes" );
       dbo::hasMany ( a, debitTimes, dbo::ManyToOne, "debitTimes" );
       dbo::hasMany ( a, absences, dbo::ManyToOne, "absences" );
+      dbo::hasMany ( a, annualStatements, dbo::ManyToOne, "annualStatements" );
     }
 
     void invalidateCaches() const {

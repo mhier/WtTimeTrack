@@ -26,9 +26,24 @@ AbsenceList::AbsenceList(Session &session,  Wt::Dbo::ptr<User> forUser)
 
 void AbsenceList::update() {
     clear();
-
     addWidget(std::make_unique<WText>("<h2>Abwesenheiten</h2>"));
+    dbo::Transaction transaction(session_.session_);
 
+    // Jahresauswahl
+    if(year == 0) year = WDate::currentDate().year();
+    addWidget(std::make_unique<Wt::WText>("Jahr wechseln: "));
+    auto selectYear = addWidget(std::make_unique<Wt::WComboBox>());
+    auto dt = forUser_.get()->debitTimes.find().orderBy("validFrom").limit(1).resultList().front();
+    int firstYear = dt->validFrom.year();
+    int lastYear = WDate::currentDate().year();
+    for(int i=firstYear; i<=lastYear; ++i) selectYear->addItem(std::to_string(i));
+    selectYear->setCurrentIndex(year-firstYear);
+    selectYear->sactivated().connect([=](WString _year){
+      year = std::stoi(_year);
+      update();
+    });
+
+    // Mitarbeiterauswahl (falls Admin)
     auto user = session_.user();
     if(user->role == UserRole::Admin) {
       addWidget(std::make_unique<Wt::WText>("Mitarbeiter wechseln: "));
@@ -51,8 +66,7 @@ void AbsenceList::update() {
       });
     }
 
-    dbo::Transaction transaction(session_.session_);
-
+    // Tabelle mit Abwesenheiten
     auto table = std::make_unique<WTable>();
     table->setHeaderCount(1);
     table->setWidth(WLength("100%"));
@@ -63,7 +77,9 @@ void AbsenceList::update() {
     table->elementAt(0, 2)->addWidget(std::make_unique<WText>("Letzter Tag"));
     table->elementAt(0, 3)->addWidget(std::make_unique<WText>("Grund"));
 
-    auto absences = forUser_->absences.find().orderBy("first").resultList();
+    auto absences = forUser_->absences.find().where("last >= ?").bind(std::to_string(year)+"-01-01").
+                                              where("first <= ?").bind(std::to_string(year)+"-12-31").
+                                              orderBy("first").resultList();
     int row = 0;
     for(auto absence : absences) {
       row++;
