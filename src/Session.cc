@@ -130,17 +130,17 @@ Session::Session() {
       log("info") << "Using existing database";
     }
 
+    // output SQL for creating tables
+    std::ofstream file("createTables.sql");
+    file << session_.tableCreationSql();
+    file.close();
+
     if(initialiseDatabase) {
 
       /*
       * Add a default admin/admin account
       */
       registerUser("admin", "admin@example.com", UserRole::Admin, "admin");
-
-      // output SQL for creating tables
-      std::ofstream file("createTables.sql");
-      file << session_.tableCreationSql();
-      file.close();
 
       // fill with test data, if requested in config file
       if(vm.count("fillTestData")) {
