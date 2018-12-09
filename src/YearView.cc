@@ -18,6 +18,7 @@
 #include <Wt/WComboBox.h>
 #include <Wt/WDoubleSpinBox.h>
 #include <Wt/WMessageBox.h>
+#include <Wt/WHBoxLayout.h>
 #include <Wt/Auth/PasswordService.h>
 #include <Wt/Auth/GoogleService.h>
 
@@ -32,15 +33,17 @@ YearView::YearView(Session &session, Wt::Dbo::ptr<User> forUser)
 
 void YearView::update() {
     clear();
+    auto vbox = setLayout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
 
     auto user = session_.user();
     dbo::Transaction transaction(session_.session_);
-    addWidget(std::make_unique<WText>("<h2>Jahresübersicht für '"+forUser_->name+"'</h2>"));
+    vbox->addWidget(std::make_unique<WText>("<h2>Jahresübersicht für '"+forUser_->name+"'</h2>"));
 
     // Jahresauswahl
+    auto layoutYearSelect = vbox->addLayout(std::make_unique<Wt::WHBoxLayout>());
     if(year == 0) year = WDate::currentDate().year();
-    addWidget(std::make_unique<Wt::WText>("Jahr wechseln: "));
-    auto selectYear = addWidget(std::make_unique<Wt::WComboBox>());
+    layoutYearSelect->addWidget(std::make_unique<Wt::WText>("Jahr wechseln: "));
+    auto selectYear = layoutYearSelect->addWidget(std::make_unique<Wt::WComboBox>(), 1);
     auto dt = forUser_.get()->debitTimes.find().orderBy("validFrom").limit(1).resultList().front();
     int firstYear = dt->validFrom.year();
     int currentYear = WDate::currentDate().year();
@@ -53,8 +56,9 @@ void YearView::update() {
 
     // Mitarbeiterauswahl (falls Admin)
     if(user->role == UserRole::Admin) {
-      addWidget(std::make_unique<Wt::WText>("Mitarbeiter wechseln: "));
-      auto cb = addWidget(std::make_unique<Wt::WComboBox>());
+      auto layoutUserSelect = vbox->addLayout(std::make_unique<Wt::WHBoxLayout>());
+      layoutUserSelect->addWidget(std::make_unique<Wt::WText>("Mitarbeiter wechseln: "));
+      auto cb = layoutUserSelect->addWidget(std::make_unique<Wt::WComboBox>(), 1);
 
       auto users = session_.session_.find<User>().resultList();
       int idx = 0;
@@ -77,9 +81,11 @@ void YearView::update() {
     if(user->role == UserRole::Admin) {
       // Prüfen ob Jahr bereits geschlossen
       if(session_.isYearClosed(year)) {
-        addWidget(std::make_unique<Wt::WText>("Jahr "+std::to_string(year)+" bereits abgeschlossen."));
+        auto layoutCloseYear = vbox->addLayout(std::make_unique<Wt::WHBoxLayout>());
+        layoutCloseYear->addWidget(std::make_unique<Wt::WText>("Jahr "+std::to_string(year)+" bereits abgeschlossen."));
         if(!session_.isYearClosed(year+1)) {    // nur falls folgendes Jahr nicht genschlossen
-          auto openYear = addWidget(std::make_unique<Wt::WPushButton>(std::to_string(year)+" wieder öffnen"));
+          auto openYear = layoutCloseYear->addWidget(
+                std::make_unique<Wt::WPushButton>(std::to_string(year)+" wieder öffnen"),1 );
           openYear->clicked().connect(this, [=] {
             auto r = Wt::WMessageBox::show("Jahr "+std::to_string(year)+" öffnen",
                                            "Soll das Jahr "+std::to_string(year)+" wirklich wieder geöffnet werden? "
@@ -105,10 +111,11 @@ void YearView::update() {
         }
       }
       // Falls nicht: Jahr ist schließbar, falls vorheriges Jahr bereits geschlossen (oder erstes Jahr überhaupt)
-      else if( (session_.isYearClosed(year-1) || year == firstYear) ) {   // && year != currentYear
+      else if( (session_.isYearClosed(year-1) || year == firstYear) && year != currentYear ) {
         // Jahr kann geschlossen werden
-        addWidget(std::make_unique<Wt::WText>("Jahr "+std::to_string(year)+" für alle Mitarbeiter abschließen?"));
-        auto closeYear = addWidget(std::make_unique<Wt::WPushButton>(std::to_string(year)+" schließen"));
+        auto layoutCloseYear = vbox->addLayout(std::make_unique<Wt::WHBoxLayout>());
+        layoutCloseYear->addWidget(std::make_unique<Wt::WText>("Jahr "+std::to_string(year)+" für alle Mitarbeiter abschließen?"));
+        auto closeYear = layoutCloseYear->addWidget(std::make_unique<Wt::WPushButton>(std::to_string(year)+" schließen"), 1);
         closeYear->clicked().connect(this, [=] {
           auto r = Wt::WMessageBox::show("Jahr "+std::to_string(year)+" abschließen",
                                          "Soll das Jahr "+std::to_string(year)+" wirklich abgeschlossen werden? "
@@ -203,7 +210,7 @@ void YearView::update() {
       table->elementAt(13, 6)->addWidget(std::make_unique<WText>(balanceTotal));
     }
 
-    addWidget(std::move(table));
+    vbox->addWidget(std::move(table));
 
 }
 

@@ -119,6 +119,16 @@ void ClockView::update(bool fullUpdate) {
                                     secondsToString(debitMfull)+" (ganzer Monat)</p>"));
       monthText->setTextFormat(Wt::TextFormat::XHTML);
 
+      auto totalPanel = layout->addWidget(std::make_unique<Wt::WPanel>(), 4, 0);
+      totalPanel->setTitle("Insgesamt");
+      totalPanel->addStyleClass("panel");
+
+      auto balanceT = user->getBalanceUntil(WDate::currentDate());
+
+      auto totalText = totalPanel->setCentralWidget(
+        std::make_unique<Wt::WText>("<p>Bilanz: "+secondsToString(balanceT)+"</p>"));
+      totalText->setTextFormat(Wt::TextFormat::XHTML);
+
     }
 
 }

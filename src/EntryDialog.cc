@@ -97,7 +97,7 @@ EntryDialog::EntryDialog(CalendarCellDialog *owner, Session &session, Wt::Dbo::p
       // prevent edit after year is closed
       bool editAfterClose = false;
       if(session_.isYearClosed(de1->date().year())) editAfterClose = true;
-      if(session_.isYearClosed(de2->date().year())) editAfterClose = true;
+      if(de2 && session_.isYearClosed(de2->date().year())) editAfterClose = true;
       if(!createNew) {
         if(session_.isYearClosed(entry->start.date().year())) editAfterClose = true;
         if(session_.isYearClosed(entry->stop.date().year())) editAfterClose = true;

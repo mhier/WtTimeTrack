@@ -75,7 +75,7 @@ int User::getCreditForRange(const WDate& from, const WDate& until) const {
     int credit = 0;
 
     std::string myWhere = "( stop >= ? and stop <= ? and hasClockedOut != 0 )";
-    if(from == WDate::currentDate() && until == WDate::currentDate()) {       // when looking for the current date
+    if(until >= WDate::currentDate()) {       // when looking for the current date
       myWhere += " or (hasClockedOut = 0)";                                   // also include not-clocked-out entry
     }
 
