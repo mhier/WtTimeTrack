@@ -69,6 +69,17 @@ EntryDialog::EntryDialog(CalendarCellDialog *owner, Session &session, Wt::Dbo::p
       Wt::WPushButton *del = footer()->addWidget(std::make_unique<Wt::WPushButton>("Löschen"));
       del->clicked().connect(this, [=] {
         dbo::Transaction transaction(session_.session_);
+
+        // prevent edit after year is closed
+        bool editAfterClose = false;
+        if(session_.isYearClosed(entry->start.date().year())) editAfterClose = true;
+        if(session_.isYearClosed(entry->stop.date().year())) editAfterClose = true;
+        if(editAfterClose) {
+          errorMessage->setText("Fehler: Buchungen in geschlossenen Jahren können nicht gelöscht werden!");
+          errorMessage->show();
+          return;
+        }
+
         auto entries = user->creditTimes.find().where("id = ?").bind(entry.id()).resultList();
         entries.front().remove();
         owner_->update();
@@ -82,6 +93,20 @@ EntryDialog::EntryDialog(CalendarCellDialog *owner, Session &session, Wt::Dbo::p
     ok->setDefault(true);
     ok->clicked().connect(this, [=] {
       dbo::Transaction transaction(session_.session_);
+
+      // prevent edit after year is closed
+      bool editAfterClose = false;
+      if(session_.isYearClosed(de1->date().year())) editAfterClose = true;
+      if(session_.isYearClosed(de2->date().year())) editAfterClose = true;
+      if(!createNew) {
+        if(session_.isYearClosed(entry->start.date().year())) editAfterClose = true;
+        if(session_.isYearClosed(entry->stop.date().year())) editAfterClose = true;
+      }
+      if(editAfterClose) {
+        errorMessage->setText("Fehler: Buchungen in geschlossenen Jahren können nicht bearbeitet oder hinzugefügt werden!");
+        errorMessage->show();
+        return;
+      }
 
       // check if edit is valid
       if(!de1->date().isValid() || !te1->time().isValid()) {

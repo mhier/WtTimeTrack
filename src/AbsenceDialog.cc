@@ -67,6 +67,17 @@ AbsenceDialog::AbsenceDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<A
       Wt::WPushButton *del = footer()->addWidget(std::make_unique<Wt::WPushButton>("Löschen"));
       del->clicked().connect(this, [=] {
         dbo::Transaction transaction(session_.session_);
+
+        // prevent edit after year is closed
+        bool editAfterClose = false;
+        if(session_.isYearClosed(absence_->first.year())) editAfterClose = true;
+        if(session_.isYearClosed(absence_->last.year())) editAfterClose = true;
+        if(editAfterClose) {
+          errorMessage->setText("Fehler: Abwesenheiten in geschlossenen Jahren können nicht gelöscht werden!");
+          errorMessage->show();
+          return;
+        }
+
         absence_.remove();
         owner_->forUser_->invalidateCaches();
         owner_->update();
@@ -78,6 +89,20 @@ AbsenceDialog::AbsenceDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<A
     ok->setDefault(true);
     ok->clicked().connect(this, [=] {
       dbo::Transaction transaction(session_.session_);
+
+      // prevent edit after year is closed
+      bool editAfterClose = false;
+      if(session_.isYearClosed(de1->date().year())) editAfterClose = true;
+      if(session_.isYearClosed(de2->date().year())) editAfterClose = true;
+      if(!createNew) {
+        if(session_.isYearClosed(absence_->first.year())) editAfterClose = true;
+        if(session_.isYearClosed(absence_->last.year())) editAfterClose = true;
+      }
+      if(editAfterClose) {
+        errorMessage->setText("Fehler: Abwesenheiten in geschlossenen Jahren können nicht bearbeitet oder hinzugefügt werden!");
+        errorMessage->show();
+        return;
+      }
 
       // check if edit is valid
       if(!de1->date().isValid() || !de2->date().isValid()) {

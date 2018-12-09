@@ -43,8 +43,8 @@ void YearView::update() {
     auto selectYear = addWidget(std::make_unique<Wt::WComboBox>());
     auto dt = forUser_.get()->debitTimes.find().orderBy("validFrom").limit(1).resultList().front();
     int firstYear = dt->validFrom.year();
-    int lastYear = WDate::currentDate().year();
-    for(int i=firstYear; i<=lastYear; ++i) selectYear->addItem(std::to_string(i));
+    int currentYear = WDate::currentDate().year();
+    for(int i=firstYear; i<=currentYear; ++i) selectYear->addItem(std::to_string(i));
     selectYear->setCurrentIndex(year-firstYear);
     selectYear->sactivated().connect([=](WString _year){
       year = std::stoi(_year);
@@ -78,38 +78,46 @@ void YearView::update() {
       // Prüfen ob Jahr bereits geschlossen
       if(session_.isYearClosed(year)) {
         addWidget(std::make_unique<Wt::WText>("Jahr "+std::to_string(year)+" bereits abgeschlossen."));
-        auto openYear = addWidget(std::make_unique<Wt::WPushButton>(std::to_string(year)+" wieder öffnen"));
-        openYear->clicked().connect(this, [=] {
-          auto r = Wt::WMessageBox::show("Jahr "+std::to_string(year)+" öffnen",
-                                         "Soll das Jahr "+std::to_string(year)+" wirklich wieder geöffnet werden? "
-                                         "Alle geänderten Jahresbilanzen für dieses Jahr werden dann zurückgesetzt auf "
-                                         "den ursprünglichen Wert. Diese Aktion kann nicht rückgängig gemacht werden.",
-                                         StandardButton::Yes | StandardButton::Abort, {AnimationEffect::Fade});
-          if(r == StandardButton::Yes) {
-            // Jahresabschluss löschen
-            {
-              dbo::Transaction transaction(session_.session_);
-              auto users = session_.session_.find<User>().resultList();
-              WDate referenceDate(year,12,31);
-              for(auto u : users) {
-                u.modify()->annualStatements.find().where("referenceDate = ?").bind(referenceDate).
-                    resultList().front().remove();
+        if(!session_.isYearClosed(year+1)) {    // nur falls folgendes Jahr nicht genschlossen
+          auto openYear = addWidget(std::make_unique<Wt::WPushButton>(std::to_string(year)+" wieder öffnen"));
+          openYear->clicked().connect(this, [=] {
+            auto r = Wt::WMessageBox::show("Jahr "+std::to_string(year)+" öffnen",
+                                           "Soll das Jahr "+std::to_string(year)+" wirklich wieder geöffnet werden? "
+                                           "Alle geänderten Jahresbilanzen für dieses Jahr werden dann zurückgesetzt auf "
+                                           "den ursprünglichen Wert. Diese Aktion kann nicht rückgängig gemacht werden.",
+                                           StandardButton::Yes | StandardButton::Abort, {AnimationEffect::Fade});
+            if(r == StandardButton::Yes) {
+              // Jahresabschluss löschen
+              {
+                dbo::Transaction transaction(session_.session_);
+                auto users = session_.session_.find<User>().resultList();
+                WDate referenceDate(year,12,31);
+                for(auto u : users) {
+                  u.modify()->annualStatements.find().where("referenceDate = ?").bind(referenceDate).
+                      resultList().front().remove();
+                }
+                session_.cache_isYearClosed[year] = false;
+                transaction.commit();
               }
-              session_.cache_isYearClosed[year] = false;
-              transaction.commit();
+              update();
             }
-            update();
-          }
-        });
+          });
+        }
       }
       // Falls nicht: Jahr ist schließbar, falls vorheriges Jahr bereits geschlossen (oder erstes Jahr überhaupt)
-      else if(session_.isYearClosed(year-1) || year == firstYear) {
+      else if( (session_.isYearClosed(year-1) || year == firstYear) ) {   // && year != currentYear
         // Jahr kann geschlossen werden
         addWidget(std::make_unique<Wt::WText>("Jahr "+std::to_string(year)+" für alle Mitarbeiter abschließen?"));
         auto closeYear = addWidget(std::make_unique<Wt::WPushButton>(std::to_string(year)+" schließen"));
         closeYear->clicked().connect(this, [=] {
-          // Jahr abschließen: Für alle Mitarbeiter das Konto zum Jahresende abspeichern
-          {
+          auto r = Wt::WMessageBox::show("Jahr "+std::to_string(year)+" abschließen",
+                                         "Soll das Jahr "+std::to_string(year)+" wirklich abgeschlossen werden? "
+                                         "Die Jahresbilanzen für alle Mitarbeiter werden für dieses Jahr festgelegt. "
+                                         "Weitere Buchungen oder Bearbeiten von Buchungen für dieses Jahr sind dann "
+                                         "nicht mehr möglich. Die Jahresbilanz kann aber (durch Admins) bearbeitet werden.",
+                                         StandardButton::Yes | StandardButton::Abort, {AnimationEffect::Fade});
+          if(r == StandardButton::Yes) {
+            // Jahr abschließen: Für alle Mitarbeiter das Konto zum Jahresende abspeichern
             dbo::Transaction transaction(session_.session_);
             auto users = session_.session_.find<User>().resultList();
             WDate referenceDate(year,12,31);
