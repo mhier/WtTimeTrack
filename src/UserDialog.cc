@@ -64,6 +64,9 @@ UserDialog::UserDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<User> u
       Wt::WPushButton *del = footer()->addWidget(std::make_unique<Wt::WPushButton>("Löschen"));
       del->clicked().connect(this, [=] {
         dbo::Transaction transaction(session_.session_);
+        for(auto absence : user_->absences.find().resultList()) absence.remove();
+        for(auto debitTime : user_->debitTimes.find().resultList()) debitTime.remove();
+        for(auto creditTime : user_->creditTimes.find().resultList()) creditTime.remove();
         user_.remove();
         owner_->update();
         hide();
