@@ -63,14 +63,14 @@ void UserList::update() {
       table->elementAt(row, 3)->addWidget(std::make_unique<WText>("???"));
     }
 
-    auto balanceTotal = secondsToString(user->getBalanceUntil(WDate::currentDate()));
-    table->elementAt(row, 4)->addWidget(std::make_unique<WText>(balanceTotal));
-
     WDate yearBegin(WDate::currentDate().year(), 1, 1);
-    auto balanceYear = secondsToString(forUser_->getBalanceForRange(yearBegin, WDate::currentDate()));
+    auto balanceYear = secondsToString(user->getBalanceForRange(yearBegin, WDate::currentDate()));
     table->elementAt(row, 4)->addWidget(std::make_unique<WText>(balanceYear));
 
-    for(int i = 0; i < 5; ++i) {
+    auto balanceTotal = secondsToString(user->getBalanceUntil(WDate::currentDate()));
+    table->elementAt(row, 5)->addWidget(std::make_unique<WText>(balanceTotal));
+
+    for(int i = 0; i < 6; ++i) {
       table->elementAt(row, i)->clicked().connect(this, [=] {
         userDialog_ = std::make_unique<UserDialog>(this, session_, user);
         userDialog_->show();
