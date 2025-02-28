@@ -40,9 +40,6 @@ class WtTimeTrack : public WContainerWidget {
 
     void onAuthEvent();
     void createMenu();
-
-    void clockIn();
-    void clockOut();
 };
 
 #endif //WT_TIME_TRACK_H_
