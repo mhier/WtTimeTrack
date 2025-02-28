@@ -2,6 +2,10 @@
 	position: static;
 }
 
+.Wt-stack > div {
+        min-height: 100vH !important;
+}
+
 .entry-dialog {
 	font-family: Arial,Sans-serif;
 	font-weight: bold;

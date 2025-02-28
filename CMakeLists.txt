@@ -5,7 +5,7 @@ set(WT_CONNECTOR "Wt::HTTP" CACHE STRING "Connector used (Wt::HTTP or Wt::FCGI)"
 
 set(WtTimeTrack_TARGET wt_project.wt)
 
-find_package(Boost REQUIRED COMPONENTS program_options signals system filesystem thread)
+find_package(Boost REQUIRED COMPONENTS program_options system filesystem thread)
 find_package(wt REQUIRED COMPONENTS http fcgi dbo dbosqlite3 dbomysql)
 
 add_custom_target(link_target ALL

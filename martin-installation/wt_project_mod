@@ -1,0 +1,10 @@
+#!/bin/sh
+
+PATH_TO_SCRIPT=$(cd ${0%/*} && echo $PWD/${0##*/})
+PREFIX=`dirname "$PATH_TO_SCRIPT"`
+
+cd $PREFIX || exit 1
+
+while true; do
+  $PREFIX/wt_project.wt --docroot $PREFIX --approot $PREFIX --http-port 8091 --http-addr 0.0.0.0 $@
+done
