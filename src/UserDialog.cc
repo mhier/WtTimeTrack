@@ -23,6 +23,7 @@ UserDialog::UserDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<User> u
 : Wt::WDialog("Benutzer"), owner_(owner), session_(session), user_(user)
 {
     contents()->addStyleClass("form-group");
+    contents()->setHeight(Wt::WLength(13, Wt::LengthUnit::Pica));
 
     Dbo::Transaction transaction(session_.session_);
     if(session_.user()->role != UserRole::Admin) return;

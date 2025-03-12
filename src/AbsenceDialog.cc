@@ -61,7 +61,8 @@ AbsenceDialog::AbsenceDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<A
     errorMessage = grid->addWidget(std::make_unique<Wt::WText>(), 3, 1);
     errorMessage->hide();
 
-    contents()->setWidth(600);
+    //contents()->setWidth(600);
+
 
     if(!createNew) {   // existing absence might be deleted
       Wt::WPushButton *del = footer()->addWidget(std::make_unique<Wt::WPushButton>("Löschen"));
@@ -146,6 +147,8 @@ AbsenceDialog::AbsenceDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<A
 
     Wt::WPushButton *cancel = footer()->addWidget(std::make_unique<Wt::WPushButton>("Abbrechen"));
     cancel->clicked().connect(this, [&] {hide();} );
+
+    contents()->setHeight(Wt::WLength(10, Wt::LengthUnit::Pica));
 
 }
 

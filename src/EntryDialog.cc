@@ -26,6 +26,7 @@ EntryDialog::EntryDialog(CalendarCellDialog *owner, Session &session, Wt::Dbo::p
 : WDialog("Buchung"), session_(session), owner_(owner), entry_(entry)
 {
     contents()->addStyleClass("form-group");
+    contents()->setHeight(Wt::WLength(7, Wt::LengthUnit::Pica));
 
     dbo::Transaction transaction(session_.session_);
     auto user = owner_->forUser_;

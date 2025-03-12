@@ -20,6 +20,7 @@ HolidayDialog::HolidayDialog(Updateable *owner, Session &session, Wt::Dbo::ptr<H
 : Wt::WDialog("Feiertag/Betriebsferien"), owner_(owner), session_(session), holiday_(holiday)
 {
     contents()->addStyleClass("form-group");
+    contents()->setHeight(Wt::WLength(7, Wt::LengthUnit::Pica));
 
     Dbo::Transaction transaction(session_.session_);
     auto user = session_.user();

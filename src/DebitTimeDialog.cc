@@ -23,6 +23,7 @@ DebitTimeDialog::DebitTimeDialog(Updateable *owner, Session &session, Wt::Dbo::p
 : Wt::WDialog("Arbeitsstunden"), owner_(owner), session_(session), debitTime_(debitTime), forUser_(forUser)
 {
     contents()->addStyleClass("form-group");
+    contents()->setHeight(Wt::WLength(21, Wt::LengthUnit::Pica));
 
     bool createNew = false;
     if(debitTime_.get() == nullptr) {
